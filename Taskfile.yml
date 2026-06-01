@@ -1,0 +1,55 @@
+version: "3"
+
+vars:
+  CODEX_SKILLS_DIR:
+    sh: 'printf "%s" "${CODEX_HOME:-$HOME/.codex}/skills"'
+
+tasks:
+  default:
+    cmds:
+      - task --list
+
+  list:
+    desc: List skills in this repo
+    cmds:
+      - find skills -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort
+
+  validate:
+    desc: Validate every skill in this repo
+    cmds:
+      - |
+        ruby -ryaml -e '
+          Dir.glob("skills/*").select { |path| File.directory?(path) }.sort.each do |skill|
+            skill_md = File.join(skill, "SKILL.md")
+            abort("#{skill}: SKILL.md not found") unless File.exist?(skill_md)
+
+            content = File.read(skill_md)
+            match = content.match(/\A---\n(.*?)\n---/m)
+            abort("#{skill}: invalid SKILL.md frontmatter") unless match
+
+            frontmatter = YAML.load(match[1])
+            abort("#{skill}: frontmatter must be a map") unless frontmatter.is_a?(Hash)
+            abort("#{skill}: missing name") unless frontmatter["name"].is_a?(String)
+            abort("#{skill}: missing description") unless frontmatter["description"].is_a?(String)
+            abort("#{skill}: invalid name") unless frontmatter["name"].match?(/\A[a-z0-9]+(?:-[a-z0-9]+)*\z/)
+            abort("#{skill}: description is too long") if frontmatter["description"].length > 1024
+
+            agents_yaml = File.join(skill, "agents", "openai.yaml")
+            YAML.load_file(agents_yaml) if File.exist?(agents_yaml)
+
+            puts "#{skill}: Skill is valid!"
+          end
+        '
+
+  install:
+    desc: Install all repo skills into the local Codex skills directory
+    cmds:
+      - mkdir -p "{{.CODEX_SKILLS_DIR}}"
+      - |
+        for skill in skills/*; do
+          [ -d "$skill" ] || continue
+          name="$(basename "$skill")"
+          rm -rf "{{.CODEX_SKILLS_DIR}}/$name"
+          cp -R "$skill" "{{.CODEX_SKILLS_DIR}}/$name"
+          echo "Installed $name -> {{.CODEX_SKILLS_DIR}}/$name"
+        done

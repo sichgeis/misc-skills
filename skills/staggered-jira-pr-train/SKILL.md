@@ -112,6 +112,28 @@ Train:
    Expected tests: ...
 ```
 
+## History reshaping
+
+When converting an already-implemented branch into a PR train, optimize the train for human review, not for preserving the original coding chronology.
+
+You may use history reshaping on new train branches, such as cherry-pick, reset --soft, restore from commits, interactive rebase, or rebuilding patches from the final diff, when this makes PR layers clearer.
+
+Allowed reshuffling examples:
+
+- Move later pure refactors before behavior changes if they make the behavior PR smaller or easier to read.
+- Split one implementation commit into foundation, behavior, tests, and docs layers.
+- Combine tiny related commits into one reviewable layer.
+- Rebuild train branches from the final feature diff when the original commit history mixes concerns.
+
+Rules:
+
+- Do not rewrite or force-push shared/user branches unless explicitly approved.
+- Do not mutate the original implementation branch while building the train; create train branches from default, handoff, or disposable work branches.
+- Force-push only agent-created train branches, and only when it improves stack clarity.
+- Preserve the final behavior and test coverage.
+- Document any reshaping in the train summary.
+- Each train branch must still compile/pass relevant checks where feasible.
+
 ## Step 3: create the branch train
 
 Use the repository default branch as the starting point unless the user specifies another base.

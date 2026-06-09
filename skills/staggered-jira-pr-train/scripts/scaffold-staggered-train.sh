@@ -10,7 +10,7 @@ Example:
   scaffold-staggered-train.sh PROJ-123 checkout-timeouts mechanical-refactor behavior tests-docs
 
 Creates:
-  feature/PROJ-123-checkout-timeouts
+  PROJ-123-checkout-timeouts
   train/PROJ-123/01-mechanical-refactor
   train/PROJ-123/02-behavior
   train/PROJ-123/03-tests-docs
@@ -48,7 +48,7 @@ if [[ -z "$DEFAULT_BRANCH" ]]; then
   exit 1
 fi
 
-HANDOFF="feature/${KEY}-${SLUG}"
+HANDOFF="${KEY}-${SLUG}"
 
 git fetch origin
 

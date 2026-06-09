@@ -8,7 +8,7 @@ Base: `<base branch>`
 Head: `<head branch>`  
 Previous PR: `<link or none>`  
 Next PR: `<link or none>`  
-Final handoff branch: `feature/<JIRA-KEY>-<short-slug>`
+Final handoff branch: `<JIRA-KEY>-<short-slug>`
 
 ## Review scope
 
@@ -45,4 +45,4 @@ List known risks, migrations, compatibility concerns, and edge cases.
 
 ## Merge-train note
 
-Review and merge this train bottom-up. The final landing target is the handoff feature branch, not the repository default branch.
+Review and merge this train bottom-up. The final landing target is the handoff branch, not the repository default branch.

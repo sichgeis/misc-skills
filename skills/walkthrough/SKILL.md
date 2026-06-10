@@ -88,13 +88,13 @@ Cache/storage path: <where results are cached, stored, invalidated, or loaded; o
 
 ## Navigation step quality bar
 
-Each navigation step must include:
+Each navigation step may include:
 
 - file path as a clickable local link when possible
 - function/class/method/symbol to open
 - key lines or symbols to look at
 - what that code is responsible for
-- what question the reviewer should ask while reading it
+- is there anything particular to notice or mention about this step
 
 Order the steps by how the runtime flow should be read, not by diff order.
 

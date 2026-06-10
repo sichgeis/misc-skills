@@ -1,13 +1,13 @@
 ---
 name: walkthrough
-description: "Guide a reviewer through a GitHub PR, stacked or staggered PR, branch, Jira issue, user story, or feature change as a calm data-flow code walkthrough with VS Code-friendly file and line links."
+description: "Guide a reviewer through a GitHub PR, stacked or staggered PR, branch, Jira issue, user story, or feature change as a calm guided VS Code data-flow walkthrough with clickable file links."
 ---
 
 # Walkthrough
 
 Use this skill when the user asks for `$walkthrough`, a PR walkthrough, stacked PR walkthrough, staggered PR walkthrough, Jira or user-story code walkthrough, branch walkthrough, review-prep guide, or code navigation guide for understanding a feature well enough to review or explain it.
 
-The goal is to help the user follow the runtime flow in their editor. Do not merely summarize the diff.
+The goal is to help the user follow the runtime flow in their editor. Do not merely summarize the diff or produce a review report.
 
 Every walkthrough should orient the user before code navigation: name the typical use case, the data or request involved, where that data enters the system, and where the use case exits.
 
@@ -58,65 +58,97 @@ Optimize for VS Code plugin use.
 - Use GitHub links only when the file is not available locally.
 - Keep language calm, compact, and concrete. Assume the user has had a long day.
 - Explain domain terms at the point where they first matter.
+- Write like a guided VS Code tour: tell the user what to open, what symbol or line to inspect, what the line means, and where to jump next.
+- Prefer narrative sections over checklist cards. Do not use repeated `Responsibility`, `Look at`, or `Ask yourself` blocks unless the user explicitly asks for review questions.
+- Quote only tiny snippets that anchor the walkthrough. Explain their plain meaning immediately after the snippet.
 
 ## Walkthrough structure
 
 Use this structure unless the user asks for a different format:
 
-```markdown
-**Problem**
-<plain-language problem the feature solves>
+````markdown
+Yes. Let’s walk it like you are clicking through VS Code.
 
-**Feature In One Sentence**
-<one sentence>
+**Start Here**
+Open [file.ext](/absolute/path/file.ext:line).
 
-**Typical Use Case**
-<brief real-world or business context for the request/data flow>
+This is <the entry point and its role in the use case>. The main method/class/function is `<SymbolName>`.
 
-**Data Involved**
-<main request, event, object, payload, or state being processed>
+The typical use case is <brief business/user context>. The important data is <request, event, object, payload, or state>.
 
-**Entry Point**
-[file.ext](/absolute/path/file.ext:line) - `SymbolName`: <where the data enters and why this is the best starting point>
-
-**Exit Point**
-[file.ext](/absolute/path/file.ext:line) - `SymbolName`: <where the use case returns, emits, stores, or completes>
+The important flow starts around [line](/absolute/path/file.ext:line):
 
 **Stack Scope**
 <only include when stacked or staggered; explain earlier/later PRs and what is in or out of scope here>
 
-**Navigation Order**
-1. [file.ext](/absolute/path/file.ext:line) - `SymbolName`
-   Responsibility: <what this code does>
-   Look at: <key lines, symbols, branches, or calls>
-   Ask yourself: <review question>
+1. <first thing the entry point does>
+2. <second thing>
+3. <third thing>
 
-**Domain Terms**
-- `<term>`: <brief meaning>
+The key call/branch is here:
+[file.ext:line](/absolute/path/file.ext:line)
 
-**Runtime Flow**
-Happy path: <how the data moves from the entry point to the exit point; be brief on steps unrelated to this review>
-Fallback/error path: <fallbacks, exceptions, retries, guard clauses, or user-visible failures>
-Cache/storage path: <where results are cached, stored, invalidated, or loaded; omit if not relevant>
+```python
+<small important snippet>
+```
+
+Plain meaning:
+<short explanation of what the snippet means for this use case>
+
+**<Next Code Area>**
+Now jump to [file.ext](/absolute/path/file.ext:line).
+
+This code <role in the flow>. The part to read is:
+[file.ext:line](/absolute/path/file.ext:line)
+
+```python
+<small important snippet>
+```
+
+Plain meaning:
+<short explanation, including any domain term when it first matters>
+
+**Fallback / Error Path**
+<include only when relevant; explain the important fallback, guard, exception, retry, or user-visible failure>
+
+**Cache / Storage / Side Effect**
+<include only when relevant; explain where results are cached, stored, emitted, invalidated, returned, or handed to another system>
 
 **Tests**
 - [test_file.ext](/absolute/path/test_file.ext:line) - `<test name>` protects <behavior>
 
+**Domain Terms**
+<include only when several terms would clutter the tour; otherwise explain terms inline>
+
 **Review Notes**
 <missing coverage, risks, or especially useful review focus, if any>
-```
 
-## Navigation step quality bar
+**Full Path In One Breath**
+1. [file.ext:line](/absolute/path/file.ext:line)  
+   <one-line step>
+2. [file.ext:line](/absolute/path/file.ext:line)  
+   <one-line step>
 
-Each navigation step may include:
+The one-sentence version: <complete data-flow summary from entry point to exit/completion point>.
+````
+
+Keep the same spirit when the exact headings differ. The walkthrough should feel like a person guiding the user through files, not a form being filled in.
+
+Avoid front-loading separate `Problem`, `Feature In One Sentence`, `Data Involved`, `Entry Point`, `Exit Point`, and `Runtime Flow` sections unless the user asks for a structured report. Weave that information into `Start Here`, the narrative sections, and `Full Path In One Breath`.
+
+## Guided tour quality bar
+
+Each tour section should usually include:
 
 - file path as a clickable local link when possible
 - function/class/method/symbol to open
-- key lines or symbols to look at
-- what that code is responsible for
-- is there anything particular to notice or mention about this step
+- a key line, branch, call, or tiny snippet to inspect
+- plain-language meaning of that code in the current use case
+- where to jump next
 
-Order the steps by how the runtime flow should be read, not by diff order.
+Order the sections by how the runtime flow should be read, not by diff order. Name sections after the code area or concept, such as `The Request Object`, `LLM OCR Provider`, `Image Provider Contract`, `Old Document Fallback`, or `Cache Piece`.
+
+Briefly summarize flow sections that are not relevant to the PR, but do not skip over the data path so much that the user loses where the request came from or where it exits.
 
 ## Flow coverage
 
@@ -133,12 +165,12 @@ Explicitly point out:
 - fallback and error behavior
 - cache or storage behavior when present
 
-If one of these does not exist or is not visible in the PR, say so briefly instead of inventing it.
+If one of these does not exist or is not visible in the PR, say so briefly in the relevant tour section instead of inventing it.
 
 When several entry or exit points exist, pick one primary pair and mention the others only if they affect the review. You may summarize unrelated flow sections in one sentence so the walkthrough keeps focus while still giving the user the surrounding data-flow context.
 
 ## Test mapping
 
-Mention tests that prove the behavior and map each test to the behavior it protects.
+Mention tests that prove the behavior and map each test to the behavior it protects. Put tests after the main code tour so they do not interrupt the runtime path.
 
 If tests are absent or only cover part of the behavior, say what is missing in practical review terms. Do not turn the walkthrough into a full code review unless the user asks for one.

@@ -33,9 +33,38 @@ git push --force-with-lease
 6. Check PR 2 mergeability in GitHub before review continues.
 7. Review and merge PR 2.
 8. Repeat until the train is complete.
-9. Hand off `<KEY>-<slug>` to the human colleague.
+9. Run the final stack health gate before saying the train is ready.
+10. Hand off `<KEY>-<slug>` to the human colleague.
 
 Do not merge any train branch directly to `main`, `master`, `develop`, or the repository default branch unless explicitly requested.
+
+## If a lower PR or branch changes
+
+After changing, rebasing, amending, force-pushing, or merging any non-top train branch, repair every descendant train branch before review continues.
+
+Do not repair a stale stack by merging the lower branch into the upper branch. Prefer `git rebase --onto`, because merge commits can preserve duplicate ancestry and delay the conflict.
+
+Required checklist:
+
+1. Record the old lower branch head SHA before changing it:
+
+```bash
+git rev-parse origin/train/<KEY>/01-...
+```
+
+2. Push the changed lower branch.
+3. For each descendant, rebase onto its new base using the old base SHA or old upstream branch that the descendant actually contains:
+
+```bash
+git fetch origin
+git switch train/<KEY>/02-...
+git rebase --onto <new-base> <old-base-sha-or-branch> train/<KEY>/02-...
+git push --force-with-lease
+gh pr view <next-pr> --json mergeable,baseRefName,headRefName,headRefOid
+```
+
+4. If the rebase produced conflicts, resolve them, continue the rebase, and run focused tests for the conflicted files or behavior.
+5. Repeat upward until every descendant branch has been repaired.
 
 ## If upper PRs show conflicts after a lower merge
 
@@ -53,3 +82,11 @@ git cherry -v origin/<KEY>-<slug> origin/train/<KEY>/02-...
 ```
 
 Repair by rebasing the next branch onto the updated handoff branch, then repeat upward for any descendants that still contain obsolete lower-layer commits. Push only agent-created train branches, and only with `--force-with-lease`.
+
+## Final stack health gate
+
+Before saying the train is ready, check every open train PR:
+
+1. `git cherry -v <base> <head>` must not show stale lower-layer commits that already landed on the base.
+2. `gh pr view <pr> --json mergeable,baseRefName,headRefName,headRefOid` must report `MERGEABLE`, or say GitHub is still recalculating.
+3. The PR diff must contain only the intended layer scope. If it includes duplicate lower-layer work, repair the descendant branch with `rebase --onto` before continuing.

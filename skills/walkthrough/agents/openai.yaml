@@ -1,0 +1,4 @@
+interface:
+  display_name: "Walkthrough"
+  short_description: "Review PRs as guided code tours"
+  default_prompt: "Use $walkthrough to guide me through this PR as a code navigation walkthrough."

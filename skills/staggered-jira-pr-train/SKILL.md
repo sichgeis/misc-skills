@@ -49,7 +49,8 @@ After the train is reviewed and merged bottom-up, the handoff branch contains th
 7. The upper PRs target the branch immediately below them.
 8. Use exact Jira issue key casing in branch names and PR titles.
 9. When the Jira issue is ambiguous, make the smallest reasonable implementation and document assumptions in the train summary.
-10. If the repository has an `AGENTS.md`, `CONTRIBUTING.md`, PR template, branch naming convention, or CI instructions, follow them unless they conflict with this skill's safety and reviewability rules. Repository branch naming rules win for the handoff branch.
+10. After changing, rebasing, amending, force-pushing, or merging any non-top train branch, immediately repair every descendant train branch before declaring the train ready or asking reviewers to continue. Follow [Maintaining rewritten stacks](#maintaining-rewritten-stacks).
+11. If the repository has an `AGENTS.md`, `CONTRIBUTING.md`, PR template, branch naming convention, or CI instructions, follow them unless they conflict with this skill's safety and reviewability rules. Repository branch naming rules win for the handoff branch.
 
 ## Inputs to infer
 
@@ -257,7 +258,8 @@ Merge order:
 5. Check PR 2 mergeability in GitHub before review continues.
 6. Review and merge PR 2.
 7. Repeat until the train is complete.
-8. At the end, <KEY>-<slug> is the complete handoff branch.
+8. Before saying the train is ready, run the final stack health gate.
+9. At the end, <KEY>-<slug> is the complete handoff branch.
 ```
 
 Prefer merge commits for intermediate train merges when the repository allows them, because they preserve ancestry and make stacked branch retargeting easier. If the repository requires squash merges, or if a lower PR landed as a different commit SHA than the train branch commit, rebase the next branch after each merge using `git rebase --onto` as shown above.
@@ -265,6 +267,30 @@ Prefer merge commits for intermediate train merges when the repository allows th
 ## Maintaining rewritten stacks
 
 If you amend, rebase, or otherwise rewrite a lower train branch, immediately repair every descendant train branch before asking reviewers to continue.
+
+The same rule applies after any lower PR merge or force-push. Treat this as required stack maintenance, not optional cleanup. Do not repair a stale stack by merging the lower branch into an upper branch; that can preserve duplicate ancestry and delay the conflict. Prefer `git rebase --onto` so obsolete lower-layer commits are removed from each descendant.
+
+Required checklist when a lower PR or branch changes:
+
+1. Record the old lower branch head SHA before changing it:
+
+```bash
+git rev-parse origin/train/<KEY>/01-...
+```
+
+2. Push the changed lower branch.
+3. For each descendant branch, rebase onto its new base using the old base SHA or old upstream branch that the descendant actually contains:
+
+```bash
+git fetch origin
+git switch train/<KEY>/02-...
+git rebase --onto <new-base> <old-base-sha-or-branch> train/<KEY>/02-...
+git push --force-with-lease
+gh pr view <next-pr> --json mergeable,baseRefName,headRefName,headRefOid
+```
+
+4. If the rebase produced conflicts, resolve them, continue the rebase, and run focused tests for the conflicted files or behavior.
+5. Repeat upward until every descendant has been repaired.
 
 Example after rewriting `train/<KEY>/01-...`:
 
@@ -298,3 +324,11 @@ Distinguish conflict types:
 - Ancestry/stack conflict: GitHub shows conflicts or duplicate diffs because the handoff branch contains a lower layer as one commit SHA while an upper branch still descends from an older SHA for the same logical layer. Repair ancestry with `rebase --onto` before editing code.
 
 Force-push only agent-created train branches, and only with `--force-with-lease`.
+
+## Final stack health gate
+
+Before saying a PR train is ready, check every open train PR:
+
+1. `git cherry -v <base> <head>` must not show stale lower-layer commits that already landed on the base.
+2. `gh pr view <pr> --json mergeable,baseRefName,headRefName,headRefOid` must report `MERGEABLE`, or you must say GitHub is still recalculating.
+3. The PR diff must contain only the intended layer scope. If it includes duplicate lower-layer work, repair the descendant branch with `rebase --onto` before continuing.

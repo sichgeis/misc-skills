@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rollback Image Tag"
+  short_description: "Roll back bad applications-infra image tags"
+  default_prompt: "Use $rollback-image-tag to roll back bad deployment image tag 8A11D5C in applications-infra."

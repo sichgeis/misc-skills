@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ticket Refiner"
+  short_description: "Draft and refine review-ready Jira tickets"
+  default_prompt: "Use $ticket-refiner to draft or refine a concise, review-ready Jira ticket."

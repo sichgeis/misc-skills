@@ -1,0 +1,4 @@
+interface:
+  display_name: "UI Feature Screenshot"
+  short_description: "Capture local UI feature evidence"
+  default_prompt: "Use $ui-feature-screenshot to run this local UI feature and capture validation screenshots."

@@ -13,7 +13,7 @@ The goal is not to endlessly perfect the branch. The goal is to make the PR clea
 
 - Keep the feature's original scope intact. Treat the PR as a small reviewable slice, not a chance to grow the epic.
 - If the user invokes or references `$gm-refactor`, use that lens explicitly: preserve readable endpoint/service flow, extract only meaningful stable details, avoid broad rewrites, and verify with focused tests.
-- Treat bot and reviewer comments as suggestions. Apply comments that improve correctness, readability, maintainability, tests, or an explicit API/contract. Push back politely on comments that over-scope the slice, add unnecessary indirection, or conflict with the intended design.
+- Treat bot and reviewer comments as suggestions. Apply comments that improve correctness, readability, maintainability, tests, or an explicit API/contract. Push back politely on comments that over-scope the slice, add unnecessary indirection, or conflict with the intended design. Always answer, resolve, or otherwise mark handled any review comment you process.
 - Fix only failures relevant to this PR branch. Do not chase unrelated flaky infrastructure or failures already present on the base branch unless the user asks.
 - Prefer rebasing the PR branch onto the latest base branch over merging the base branch into the PR branch, unless the user explicitly requests a merge or rebasing would be unsafe for a shared branch.
 - Do not merge the PR unless the user explicitly asks and the repo's merge conditions are satisfied.
@@ -50,7 +50,7 @@ Template:
 ```text
 Babysit <TICKET-KEY or short PR name> PR
 
-Check GitHub PR <PR URL> for CI status and new review comments, especially <expected bots/reviewers>. If checks are failing, inspect the failing logs and fix only issues relevant to this PR branch. If review comments exist, treat them as suggestions: apply them when they improve correctness, readability, tests, maintainability, or the explicit API/contract for this slice; push back politely when they would over-scope <ticket/epic slice>, introduce unnecessary indirection, or conflict with repository conventions.
+Check GitHub PR <PR URL> for CI status and new review comments, especially <expected bots/reviewers>. If checks are failing, inspect the failing logs and fix only issues relevant to this PR branch. If review comments exist, treat them as suggestions: apply them when they improve correctness, readability, tests, maintainability, or the explicit API/contract for this slice; push back politely when they would over-scope <ticket/epic slice>, introduce unnecessary indirection, or conflict with repository conventions. For every processed review comment, either answer it, resolve it, or mark it handled in the appropriate GitHub thread. Keep replies very concise and readable; use a small table when it makes several comment outcomes easier to scan.
 
 Use the gm-refactor lens when relevant: keep the main flow readable, extract only meaningful stable details, avoid broad rewrites, reduce surprising mutation, and verify with focused tests. Push justified fixes to the PR branch and report what changed, what is still pending, and any comments deliberately not applied.
 
@@ -77,7 +77,9 @@ On each heartbeat run:
 3. If review comments exist:
    - group comments by theme
    - apply high-signal correctness/readability/test/API-contract feedback
+   - answer, resolve, or mark handled every processed comment or thread
    - leave or draft a concise reply for comments that are out of scope, duplicative, or not worth the added complexity
+   - keep replies easy to read; use short bullets or a small table when summarizing multiple comment outcomes
    - avoid fighting style-only comments unless they create meaningful churn
 4. If the branch is stale:
    - prefer rebase onto the latest base branch
@@ -109,8 +111,9 @@ Before deleting the heartbeat:
    - accepted feedback
    - deferred or non-applied comments with brief rationale
    - current status and remaining human-review needs
-4. Delete the heartbeat automation using the automation tool that created or manages it.
-5. Notify the user that babysitting ended and why.
+4. Confirm processed review comments are answered, resolved, or marked handled.
+5. Delete the heartbeat automation using the automation tool that created or manages it.
+6. Notify the user that babysitting ended and why.
 
 ## Useful GitHub Checks
 
@@ -138,4 +141,13 @@ Changed: <summary or "nothing">.
 Verified: <commands or "not run, reason">.
 Pending: <human review / failing check / none>.
 Deferred: <comments intentionally not applied, if any>.
+```
+
+When reporting several review comments, prefer a compact table:
+
+```text
+| Comment | Decision | Status |
+| --- | --- | --- |
+| Rename helper | Applied | Resolved |
+| Split follow-up scope | Deferred: outside this slice | Replied |
 ```

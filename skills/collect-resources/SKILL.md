@@ -1,11 +1,11 @@
 ---
 name: collect-resources
-description: Create a copy-ready starter system prompt for a new coding-agent conversation that instructs the agent to read and prepare from the most relevant non-source-code resources mentioned in the current conversation. Use when the user says "Collect Resources", invokes $collect-resources, wants to start a new thread with curated source material, or asks for a prompt that lists Jira tickets, Confluence pages, GitHub planning links, web resources, Obsidian notes, Obsidian wiki pages, or important non-code artifacts from the conversation.
+description: Create a starter system prompt for a new coding-agent conversation, then create a new Codex thread in the corresponding repository project when appropriate. The prompt instructs the agent to read and prepare from the most relevant non-source-code resources mentioned in the current conversation. Use when the user says "Collect Resources", invokes $collect-resources, wants to start a new thread with curated source material, or asks for a prompt that lists Jira tickets, Confluence pages, GitHub planning links, web resources, Obsidian notes, Obsidian wiki pages, or important non-code artifacts from the conversation.
 ---
 
 # Collect Resources
 
-Create a concise system prompt that a fresh coding agent can use as its first message to read and prepare from the most relevant source material in the current conversation.
+Create a concise system prompt that a fresh coding agent can use as its first message to read and prepare from the most relevant source material in the current conversation, then use Codex thread tooling to start that new session when possible.
 
 ## Workflow
 
@@ -13,7 +13,10 @@ Create a concise system prompt that a fresh coding agent can use as its first me
 2. Include only the most relevant resources for the next task.
 3. Group resources by type.
 4. Write a system prompt that explicitly tells the new agent to read the listed resources and prepare for the task ahead.
-5. Do not fetch, summarize, or validate resources unless the user separately asks for that. The output is the starter prompt itself.
+5. Identify the corresponding repository project for the new Codex thread.
+6. If the repository project is clear, create a new thread there with the starter prompt.
+7. If the repository project is unclear, ask the user with built-in Codex user-input functionality and include an option to skip thread creation.
+8. Do not fetch, summarize, or validate resources unless the user separately asks for that.
 
 ## What Counts As A Resource
 
@@ -35,7 +38,7 @@ Exclude:
 
 ## Output Format
 
-Return only the prompt the user can paste into a new conversation, unless the user asks for commentary.
+Use the prompt below as the initial prompt for the new thread. If thread creation is skipped or unavailable, return only the prompt the user can paste into a new conversation, unless the user asks for commentary.
 
 Use this structure:
 
@@ -86,3 +89,37 @@ Omit empty categories. Preserve URLs and paths exactly. For non-URL references s
 - Mention duplicates only once unless two mentions point to meaningfully different contexts.
 - Do not include local source code paths just because they appeared in the conversation. Include non-code documents and artifacts only when they are useful starting context.
 - If no resources are present, still produce a starter prompt with `Resources: None found in the conversation above.` and tell the new agent to ask the user for source material.
+
+## Thread Creation
+
+After creating the starter prompt:
+
+1. Use Codex's built-in thread tooling. In Codex Desktop, first call `list_projects`, then call `create_thread` with the matching `projectId`.
+2. Match the project from the current repository path, Git remote, repo name, user-provided project name, or the strongest repository signal in the conversation.
+3. Use a project target with a local environment by default because the new thread is only reading and preparing:
+
+```json
+{
+  "target": {
+    "type": "project",
+    "projectId": "<projectId>",
+    "environment": { "type": "local" }
+  },
+  "prompt": "<starter prompt>"
+}
+```
+
+4. Do not specify a model unless the user explicitly requested one.
+5. After successful thread creation, report the created thread using the app's expected `::created-thread{...}` directive when available.
+
+## Clarification
+
+Ask for clarification before creating a thread when the corresponding repository project is ambiguous, missing, or not present in `list_projects`.
+
+Use built-in Codex user-input functionality when available; prefer `request_user_input` when the runtime exposes it. Ask one short question with options like:
+
+- `Use inferred project` when there is a plausible project but confidence is not high.
+- `Choose repo/project` when the user should provide the exact repository or project.
+- `Do not spawn` when the user wants only the starter prompt.
+
+If built-in user-input tooling is unavailable, ask the same question directly and keep the prompt ready. Do not create a projectless thread for repository work unless the user explicitly chooses that.

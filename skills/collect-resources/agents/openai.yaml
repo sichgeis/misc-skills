@@ -1,4 +1,4 @@
 interface:
   display_name: "Collect Resources"
   short_description: "Build a new-thread resource ingestion prompt"
-  default_prompt: "Use $collect-resources to create a starter prompt for a new coding-agent thread that reads the most relevant resources and prepares for the task ahead."
+  default_prompt: "Use $collect-resources to collect the most relevant resources and start a new Codex thread that reads and prepares for the task ahead."

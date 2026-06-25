@@ -1,0 +1,4 @@
+interface:
+  display_name: "PR Babysit"
+  short_description: "Create and babysit GitHub PRs on a heartbeat"
+  default_prompt: "Use $pr-babysit to create a PR for the current branch, set up a heartbeat, and handle CI or review feedback until it is ready for human review."

@@ -57,7 +57,7 @@ Use the gm-refactor lens when relevant: keep the main flow readable, extract onl
 End criteria: If CI is green or only blocked by expected human-review requirements, and there is nothing significant left to improve, or if bot/reviewer comments begin flipflopping or asking for scope churn rather than clear correctness/readability improvements, stop making code changes. Before ending, update the GitHub PR description one final time with the final summary, verification, accepted review feedback, and deliberately deferred/non-applied comments. Make sure the PR is ready for human review, not draft unless intentionally still draft, on the correct branch, and cleanly pushed. Then delete this heartbeat automation and notify the user that babysitting has ended and why.
 ```
 
-Choose a cadence that matches the repo's CI/review timing. If unknown, use a moderate interval that is frequent enough to catch bot feedback without spamming, for example every 30-60 minutes during active review.
+Choose a cadence that matches the repo's CI/review timing. If unknown, use a 7-minute interval during active review.
 
 ## Heartbeat Run Workflow
 

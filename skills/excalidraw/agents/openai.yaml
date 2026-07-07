@@ -1,0 +1,4 @@
+interface:
+  display_name: "Excalidraw"
+  short_description: "Create and inspect Excalidraw diagrams"
+  default_prompt: "Use $excalidraw to create an importable Excalidraw flowchart from this process."

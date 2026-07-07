@@ -1,0 +1,4 @@
+interface:
+  display_name: "DDD Interviewer"
+  short_description: "Interview domains before implementation"
+  default_prompt: "Use $ddd-interviewer to interview me about a feature's business domain before implementation."

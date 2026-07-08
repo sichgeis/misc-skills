@@ -1,0 +1,4 @@
+interface:
+  display_name: "GM Refactor"
+  short_description: "Refactor code in Goldene Mitte style"
+  default_prompt: "Use $gm-refactor to refactor the selected code in the Goldene Mitte style while preserving behavior."

@@ -6,9 +6,10 @@ Personal Codex skills that are too small or specific for a larger shared plugin.
 
 ```text
 skills/
-  handoff/
+  <skill-name>/
     SKILL.md
     agents/openai.yaml
+    commands/        # optional command or prompt compatibility wrappers
 ```
 
 Each skill lives in `skills/<skill-name>/` and follows the Codex skill format.

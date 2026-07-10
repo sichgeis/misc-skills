@@ -23,8 +23,8 @@ Pick the mode from the input. A thin or empty ticket, current branch, PR, or fre
 A ticket nobody finishes reading is worse than a short one. Default to the shortest version that is still useful.
 
 - Include only sections with real content.
-- Keep acceptance criteria to 3-5 scenarios unless the behavior genuinely needs more.
-- Prefer bullets over paragraphs.
+- Keep acceptance criteria to 3-5 focused items unless the behavior genuinely needs more.
+- Prefer terse bullets over paragraphs: one idea per bullet, no filler.
 - Fold rollout, test hints, and top risks into one short section when each is only one line.
 - Cut repeated context before showing the draft.
 
@@ -39,6 +39,10 @@ Ground every ticket in evidence:
 - Check related docs or memory only when they can clarify behavior or scope.
 
 Never fabricate behavior, file paths, personas, or acceptance criteria. If a section cannot be grounded, state the assumption or leave it out.
+
+When the work has multiple plausible approaches, list the options and add a recommendation when the evidence clearly favors one. Keep the recommendation next to the options; use an open question only when the choice cannot be resolved from the available context.
+
+Before marking something out of scope, verify that a dependency or existing behavior does not already cover it. If it works through an upstream capability, say so in Technical notes instead of deferring it. Before asking an open question about current behavior, inspect the current behavior and turn the resolved edge into acceptance criteria when possible.
 
 ## Prompting-Service Mustache Syntax
 
@@ -65,6 +69,7 @@ Build the Why from useful layers:
 - **Cost of inaction**: what remains slow, broken, or risky.
 
 Not every ticket needs all four layers, but a Why with only the immediate trigger is usually too shallow.
+Scale the depth to the ticket size: one or two grounded layers beat four padded ones on a small story.
 
 Use this section set as a menu, not a form to fill blindly:
 
@@ -82,6 +87,20 @@ Open questions / risks
 Links / examples
 ```
 
+### Rollout / Config / QA
+
+Include a rollout/config note in every draft, even if it is short.
+
+- Explicitly answer the feature-flag question: `Behind FF <name>, default <on/off>` or `No FF needed, because <reason>`.
+- Ground feature flags in the repo's real flag mechanism; do not invent flag names or infrastructure.
+- Default to gating user-visible or risky changes; skip only when the change is low-risk, internal, or a flag would be pure ceremony.
+- When a flag gates behavior, add acceptance coverage for enabled vs disabled behavior.
+- Mention relevant env knobs, dark-launch notes, and a concrete QA path when they exist.
+
+### Links
+
+When the body mentions related tickets, PRs, or docs, include them in a final Links section with a one-line relationship label, for example `dependency`, `blocked by`, `follow-up`, `related`, or `supersedes`. If a real Jira issue link would be useful, propose creating it, but only write it after explicit confirmation.
+
 ### Lead Form
 
 - **Feature / user-facing**: open with `As a <persona>, I want <capability>, so that <benefit>`.
@@ -91,7 +110,13 @@ Identify the real user. In Hypatos backend work this may be a workflow author, e
 
 ### Acceptance Criteria
 
-Use Gherkin only for acceptance criteria:
+Choose the acceptance criteria format that makes the ticket easiest to understand.
+
+- Use Gherkin when the work has user-visible or system-observable behavior with clear preconditions, actions, and outcomes.
+- Use concise checklist bullets when Gherkin would add ceremony, especially for refactors, internal cleanup, infrastructure chores, dependency updates, documentation, or exploratory tasks.
+- Skip acceptance criteria only when another section already makes verification unambiguous; otherwise include at least a short "Done when" checklist.
+
+When Gherkin fits, use it only for acceptance criteria:
 
 ```gherkin
 Scenario: <behavioral outcome>
@@ -101,7 +126,8 @@ Scenario: <behavioral outcome>
   And <additional assertion>
 ```
 
-Keep scenarios behavioral: inputs, actions, and observable results. Do not describe implementation steps as acceptance criteria. Reference real test files when they exist; do not imply `.feature` files unless the repo actually uses them.
+For behavioral criteria, focus on inputs, actions, and observable results. Do not describe implementation steps as acceptance criteria. Reference real test files when they exist; do not imply `.feature` files unless the repo actually uses them.
+Each criterion should assert a distinct fact. Drop near-duplicates and spend the acceptance budget on edges that differ: empty cases, limits, rejection paths, and feature-flag on/off behavior.
 
 ## REFINE Mode
 
@@ -114,7 +140,7 @@ Investigate first, then assess it against this readiness bar:
 - **Valuable**: Why is present and layered. Deepen it when shallow.
 - **Estimable**: technical grounding is sufficient to size.
 - **Small**: split large work or suggest folding trivial work into a parent.
-- **Testable**: concrete acceptance criteria exist.
+- **Testable**: concrete acceptance criteria or a clear "done when" checklist exists.
 
 REFINE output should be:
 
@@ -133,7 +159,8 @@ Default output is a draft shown to the user. Never modify a live Jira issue with
 1. Produce the draft or refinement proposal in markdown.
 2. If the user asked to publish or update, ask whether to update the Jira description on the specific issue or keep the draft.
 3. Only after explicit confirmation, convert the final markdown to the format required by the Jira tool and update the issue.
-4. After writing, provide the clickable issue link, for example `[BACKEND-1234](https://hypatos.atlassian.net/browse/BACKEND-1234)`.
+4. If the draft names dependencies, ask whether to create matching Jira issue links; create them only after explicit confirmation.
+5. After writing, provide the clickable issue link, for example `[BACKEND-1234](https://hypatos.atlassian.net/browse/BACKEND-1234)`.
 
 If the user only asked to propose, draft, or critique, stop after showing the proposal.
 
@@ -143,9 +170,13 @@ Before showing the draft, verify:
 
 - Why is non-empty, distinct from TL;DR, and layered beyond the immediate trigger.
 - File paths, ticket links, APIs, flags, and syntax are verified or clearly marked as assumptions.
-- Gherkin scenarios describe actual behavior, not implementation steps.
+- Acceptance criteria use the right format for the work; Gherkin appears only when it clarifies observable behavior.
+- Acceptance criteria cover distinct facts without near-duplicates.
 - Persona story is used only when there is a real user-facing feature.
-- Out of scope is present when scope could reasonably creep.
+- Out of scope is present when scope could reasonably creep, and dependencies/current behavior were checked before deferring anything.
+- Options include a recommendation when the evidence supports one.
+- Rollout / config / QA explicitly answers the feature-flag question using the repo's real mechanism.
+- Links identify the relationship of each related ticket, PR, or doc, and Jira issue links are proposed only when useful.
 - Summary is imperative, short, and free of project prefixes or root-cause dumps.
 
 ## Output Format

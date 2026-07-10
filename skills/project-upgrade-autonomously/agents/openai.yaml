@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Upgrade Autonomously"
+  short_description: "Assess and autonomously upgrade a repository"
+  default_prompt: "Use $project-upgrade-autonomously to assess this repository and propose a high-value upgrade before changing anything."

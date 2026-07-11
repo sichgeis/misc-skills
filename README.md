@@ -21,8 +21,9 @@ Each skill lives in `skills/<skill-name>/` and follows the Codex skill format.
 `prepare-vibe-coded-repo` establishes a lightweight operating system for small
 personal projects. It first assesses existing repository guidance, then
 classifies the project as Bootstrap, Consolidate, or Preserve and proposes the
-smallest useful change set. Only after approval does it align the repository on
-a feature branch, validate the result, and create one local commit.
+smallest useful change set. Only after approval does it align the repository,
+validate the result, and create one local commit. Small sequential projects
+default to main; branches or worktrees remain available when isolation helps.
 
 Invoke it with a prompt such as:
 

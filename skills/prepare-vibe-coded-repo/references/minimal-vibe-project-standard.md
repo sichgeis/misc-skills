@@ -27,7 +27,7 @@ A prepared repository lets an agent determine, without reconstructing the projec
 3. which feature is proposed, approved, active, blocked, or done;
 4. the scope, non-goals, acceptance conditions, current progress, evidence, and next action for active work;
 5. the canonical validation commands and which important checks remain manual;
-6. the Git baseline, branch convention, commit expectations, and treatment of unrelated changes;
+6. the Git baseline, default commit mode, optional isolation rules, commit expectations, and treatment of unrelated changes;
 7. what an agent may do autonomously and which actions require approval; and
 8. how another task resumes work safely.
 
@@ -50,7 +50,7 @@ Stop for decisions outside the approval envelope, not for routine implementation
 
 Do not make Codex Goals, scheduled tasks, recurring automations, or an external issue tracker prerequisites for autonomy. Introduce them only when the user explicitly requests them and the work benefits from time-based monitoring, recurring checks, or coordination that repository state alone cannot provide. A `Goal` field in `FEATURES.md` names the feature outcome; it does not require activation of a Codex Goal.
 
-Separate Codex tasks may work concurrently when each owns a feature section and branch. Shared durable documents remain authoritative; tasks must preserve unrelated changes and reconcile shared-file conflicts explicitly.
+Sequential Codex tasks should normally continue on main, using the repository as their shared memory. When tasks actually run concurrently, isolate overlapping or risky work with separate branches and, only when simultaneous checkouts help, worktrees. Shared durable documents remain authoritative; every task must preserve unrelated changes and reconcile shared-file conflicts explicitly.
 
 ## Operating Modes
 
@@ -104,7 +104,7 @@ Keep it short enough to read at the start of every task. Include only repository
 - canonical validation and honest limitations;
 - feature workflow and `FEATURES.md` responsibility when used;
 - the autonomous implementation/validation/progress/commit loop;
-- Git, branch, commit, and unrelated-change rules;
+- Git mode, optional isolation, commit, and unrelated-change rules;
 - autonomy and approval boundaries; and
 - progress, completion, and handoff expectations.
 
@@ -120,7 +120,6 @@ Use this compact shape and omit fields that add no information:
 ## Feature name
 
 - Status: Proposed | Approved | In progress | Blocked | Done
-- Branch: `codex/feature-name`
 - Goal:
 - Scope:
 - Non-goals:
@@ -130,9 +129,9 @@ Use this compact shape and omit fields that add no information:
 - Next action:
 ```
 
-Add `Decisions` only when non-obvious rationale must survive handoff. Active features should have exactly one actionable next step. Omit `Branch`, `Progress`, or `Next action` from completed features when they no longer help.
+Add `Branch` only when the feature is isolated from main. Add `Decisions` only when non-obvious rationale must survive handoff. Active features should have exactly one actionable next step. Omit `Progress` or `Next action` from completed features when they no longer help.
 
-Concurrent tasks should own separate feature sections and branches. Accept occasional conflicts in this shared small file as a reasonable simplicity tradeoff. When a feature becomes too complex for one section, split only that feature into a dedicated specification; do not pre-create a hierarchy.
+Sequential tasks should continue through separate feature sections on main. Concurrent tasks should own separate feature sections and use branches when their work needs isolation. Accept occasional conflicts in this shared small file as a reasonable simplicity tradeoff. When a feature becomes too complex for one section, split only that feature into a dedicated specification; do not pre-create a hierarchy.
 
 Shorten or remove completed details only when:
 
@@ -166,14 +165,16 @@ During assessment, inspect status before history or checks and record every stag
 After approval:
 
 - recheck the baseline before mutation;
-- use the approved repository-conventional feature branch, defaulting to `codex/prepare-vibe-repo`;
-- never commit directly to the default branch;
+- use the approved Git mode and commit target;
+- default to the current main branch for a small personal project with sequential work;
+- use a repository-conventional branch when work is concurrent, broad, risky, experimental, specifically requested, or required by repository policy;
+- use a worktree only when simultaneous isolated checkouts solve a concrete problem; never create one by default;
 - preserve pre-existing changes byte-for-byte unless an overlapping file was explicitly included and its integration was approved;
 - stage only approved paths;
-- create one local commit and do not push; and
+- create one local commit on the approved target and do not push; and
 - leave no new uncommitted changes from the alignment.
 
-A dirty tree is not automatically a blocker. Proceed only when approved edits and staging can be isolated without hiding, overwriting, committing, or relocating unrelated user work. If proposed paths overlap existing changes, the baseline changed materially, branch creation is unsafe, or the distinction between user and skill changes cannot be proven, remain read-only and ask for direction.
+A dirty tree is not automatically a blocker. Proceed only when approved edits and staging can be isolated without hiding, overwriting, committing, or relocating unrelated user work. If proposed paths overlap existing changes, the baseline changed materially, the approved Git mode is unsafe, or the distinction between user and skill changes cannot be proven, remain read-only and ask for direction.
 
 Safe validation may read files, parse configuration, or run established local checks that have no external consequence. Do not install dependencies or use real accounts, credentials, providers, production data, deployments, releases, or destructive commands under the alignment approval.
 

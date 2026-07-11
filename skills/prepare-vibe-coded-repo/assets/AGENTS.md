@@ -26,13 +26,13 @@ If sources conflict, stop long enough to identify and reconcile the owning sourc
 
 - Use `[canonical validation command]` for the normal validation path.
 - Keep feature behavior, checks, affected durable documentation, and `FEATURES.md` aligned.
-- Use `[branch convention]` branches and commit coherent milestones.
+- For small sequential work, commit coherent milestones directly on main. Use `[branch convention]` branches or worktrees only when parallelism, risk, or repository policy makes isolation useful.
 - Preserve unrelated user work. Never hide, discard, or include it in a feature commit.
 - Never claim an unavailable or unrun check passed; record manual-only gaps honestly.
 
 ## Autonomy And Approval
 
-After a feature is approved, proceed autonomously through [implementation/checks/local commits/feature-branch pushes as appropriate].
+After a feature is approved, proceed autonomously through [implementation/checks/local commits/pushes as appropriate].
 
 Repeat until acceptance passes or a material blocker appears:
 

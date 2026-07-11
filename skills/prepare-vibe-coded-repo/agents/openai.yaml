@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prepare Vibe-Coded Repository"
+  short_description: "Establish low-friction guidance for agent work"
+  default_prompt: "Use $prepare-vibe-coded-repo to assess this repository and propose the smallest useful setup for autonomous vibe-coded development."

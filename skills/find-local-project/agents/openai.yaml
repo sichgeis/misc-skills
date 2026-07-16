@@ -1,0 +1,4 @@
+interface:
+  display_name: "Find Local Project"
+  short_description: "Find and catalog local Git projects"
+  default_prompt: "Use $find-local-project to locate a project on my machine."

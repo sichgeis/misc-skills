@@ -16,6 +16,27 @@ skills/
 
 Each skill lives in `skills/<skill-name>/` and follows the Codex skill format.
 
+## Find Local Project
+
+`find-local-project` catalogs and locates local Git repositories beneath
+`/Users/christian/hypatos` and `/Users/christian/projects`. Its deterministic
+helper produces machine-local JSON and Markdown catalogs outside this
+repository, keeping the versioned skill source portable and the generated
+inventory out of Git.
+
+Invoke it with a prompt such as:
+
+```text
+Use $find-local-project to find my local prompting service repository.
+```
+
+The skill also includes a macOS `launchd` installer that refreshes the generated
+catalog at login and daily at 09:00 local time:
+
+```bash
+python ~/.codex/skills/find-local-project/scripts/install_daily_refresh.py install
+```
+
 ## Prepare A Vibe-Coded Repository
 
 `prepare-vibe-coded-repo` establishes a lightweight operating system for small

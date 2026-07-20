@@ -9,13 +9,9 @@ description: Use when the user asks to roll back a bad applications-infra deploy
 
 Roll back bad image tags in `applications-infra` from one central input: the bad tag. Treat timestamps, "minutes ago", service names, and incident details as optional hints, not required inputs.
 
-Default repository:
+Default repository: the locally available `applications-infra` checkout. Discover it from the current workspace, known project roots, or host project-discovery capabilities instead of assuming a user-specific absolute path.
 
-```text
-/Users/christian/hypatos/applications-infra
-```
-
-If the user names another repo, use that repo instead. Always read repo-local `AGENTS.md` or equivalent instructions before changing files.
+If the user names another repo, use that repo instead. Before changing files, read the repository's applicable guidance, such as `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, or host-provided repository instructions.
 
 ## Safety Rules
 
@@ -34,7 +30,7 @@ Extract the bad tag from the user prompt. Prefer a hexadecimal-looking token or 
 
 ```bash
 BAD_TAG="<user-provided-tag-lowercase>"
-REPO="${REPO:-/Users/christian/hypatos/applications-infra}"
+REPO="<discovered-applications-infra-path>"
 ```
 
 Ask a follow-up only when no plausible tag is present or the repo cannot be found.
@@ -50,14 +46,10 @@ git fetch origin master
 If the worktree is dirty, do not overwrite user changes. Either continue only if the changes are unrelated or ask how to proceed. Once the worktree is safe, create a branch from the latest `origin/master`:
 
 ```bash
-git switch -c "codex/revert-<env-or-scope>-${BAD_TAG}" origin/master
+git switch -c "rollback/revert-<env-or-scope>-${BAD_TAG}" origin/master
 ```
 
-Read current repo guidance:
-
-```bash
-sed -n '1,220p' AGENTS.md 2>/dev/null
-```
+Read the applicable repository guidance using the host's file-reading capability. Check the instruction files and contribution docs that exist in the repository rather than assuming a single filename.
 
 In `applications-infra`, commit titles and PR titles use cluster prefixes such as `[dev-01]`, `[prod-01]`, or `[prod-us-01]`.
 
@@ -176,7 +168,7 @@ aws-us-east-production-01/  -> [prod-us-01]
 Use a branch name like:
 
 ```text
-codex/revert-<env>-<scope>-${BAD_TAG}
+rollback/revert-<env>-<scope>-${BAD_TAG}
 ```
 
 Use a commit and PR title like:
@@ -203,7 +195,7 @@ gh pr create --base master --head "$(git branch --show-current)" --title "<title
 
 ### 9. Merge Decision
 
-After opening the PR:
+After opening the PR, use an available GitHub capability to inspect checks, reviews, draft state, and mergeability. With GitHub CLI:
 
 ```bash
 gh pr checks <pr-url> --watch

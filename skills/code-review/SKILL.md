@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Thorough read-only code review for GitHub pull requests. Use when the user provides a PR URL or asks Codex to review a GitHub pull request, PR diff, branch review, implementation risk, regression risk, or missing-test risk before merge.
+description: Thorough read-only code review for GitHub pull requests. Use when the user provides a PR URL or asks for review of a GitHub pull request, PR diff, branch, implementation risk, regression risk, or missing-test risk before merge.
 ---
 
 # Code Review
@@ -10,7 +10,7 @@ Use this skill to review a provided GitHub pull request URL. The goal is to prod
 ## Core Constraints
 
 - Treat the task as review-only. Do not edit files, apply patches, push commits, post GitHub comments, or start implementation unless the user separately asks for fixes after the review.
-- Prefer local and GitHub CLI evidence over assumptions. Use `gh`, `git`, `rg`, and targeted file reads.
+- Prefer direct repository and GitHub evidence over assumptions. Use connected GitHub capabilities when available, with `gh`, `git`, `rg`, and targeted file reads as fallbacks.
 - Do not rely only on the patch. Inspect surrounding code, call sites, tests, schemas, migrations, configs, and docs when they affect review confidence.
 - Protect user changes in the working tree. Before checking out or fetching branches, inspect the current state and avoid commands that would overwrite local work.
 - If facts are uncertain, say what was inferred and what evidence is missing.
@@ -22,7 +22,7 @@ Use this skill to review a provided GitHub pull request URL. The goal is to prod
    - `git status --short --untracked-files=all`
    - `git remote -v`
    - `git branch --show-current`
-3. Use GitHub CLI for PR context:
+3. Use an available authenticated GitHub capability for PR context. If none is available, use GitHub CLI:
    - `gh pr view <url> --json title,body,author,baseRefName,headRefName,headRepositoryOwner,headRepository,commits,files,reviews,reviewDecision,statusCheckRollup,mergeStateStatus,url`
    - `gh pr diff <url>`
 4. If the PR belongs to the current repository and it is safe to do so, fetch the PR refs for better local inspection. Avoid checkout when the working tree is dirty unless checkout is clearly unnecessary or the user has approved it.
@@ -76,4 +76,4 @@ Severity labels:
 
 For each finding, include a concrete reproduction path or failure scenario when possible. Avoid vague style feedback. If there are no substantive findings, do not invent issues; say no issues were found and identify any remaining test gaps or review limitations.
 
-After creating or updating this skill, restart the coding agent so it can load the updated skill manifest.
+After creating or updating this skill, reload the skill registry if the host requires it. Restart the current session only when the host cannot discover skill changes dynamically.

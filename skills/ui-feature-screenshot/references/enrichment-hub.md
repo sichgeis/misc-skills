@@ -22,7 +22,7 @@ For local screenshot runs where Prompting Service is already available:
 - `PROJECTS_API__URL=http://localhost:18080`
 - `TEMPORALIO__ENABLED=false`
 
-If backend feature-flag env override fails, do not force config edits. Intercept only `POST /v1/feature-flags` in Playwright and enable the specific feature flag under test.
+If backend feature-flag env override fails, do not force config edits. In the chosen UI automation layer, intercept only `POST /v1/feature-flags` and enable the specific feature flag under test.
 
 ## Support Stub Pattern
 

@@ -7,23 +7,26 @@ description: Create, update, inspect, and explain Excalidraw diagrams as importa
 
 ## Overview
 
-Create and inspect Excalidraw source files without loading verbose scene JSON into the main context. Prefer the bundled scripts for new diagrams and compact summaries; return file paths and short explanations instead of raw JSON.
+Create and inspect Excalidraw source files without loading verbose scene JSON into the active context. Prefer the bundled scripts for new diagrams and compact summaries; return file paths and short explanations instead of raw JSON.
 
 ## Workflow
 
 1. Clarify the diagram intent only when the request lacks the nodes, flow, or output path needed to produce a useful file.
-2. For new diagrams, write a compact diagram spec and run `scripts/create_excalidraw.py`.
-3. For existing `.excalidraw` or `.excalidraw.json` files, run `scripts/summarize_excalidraw.py` before deciding what to change.
-4. Make edits through scripts or focused JSON transformations. Avoid dumping full Excalidraw JSON into the conversation.
-5. Report the output file path, what changed, and any important assumptions. Do not paste raw scene JSON unless the user explicitly asks.
+2. Resolve bundled resources through the host's skill/resource mechanism or the installed skill directory.
+3. For new diagrams, write a compact diagram spec and run `scripts/create_excalidraw.py`.
+4. For existing `.excalidraw` or `.excalidraw.json` files, run `scripts/summarize_excalidraw.py` before deciding what to change.
+5. Make edits through scripts or focused JSON transformations. Avoid dumping full Excalidraw JSON into the conversation.
+6. Report the output file path, what changed, and any important assumptions. Do not paste raw scene JSON unless the user explicitly asks.
 
 ## Creating Diagrams
 
-Use `references/spec-format.md` for the compact JSON spec. The usual command is:
+Use `references/spec-format.md` for the compact JSON spec. Resolve the script path from the installed skill resources, then run:
 
 ```bash
-python3 /path/to/skill/scripts/create_excalidraw.py spec.json output.excalidraw.json
+python3 "$SKILL_DIR/scripts/create_excalidraw.py" spec.json output.excalidraw.json
 ```
+
+`$SKILL_DIR` is illustrative; use the actual resource path exposed by the host rather than assuming that variable exists.
 
 Default to:
 
@@ -34,13 +37,13 @@ Default to:
 
 ## Inspecting Existing Files
 
-Excalidraw scene JSON is verbose and low-signal. Do not read full `.excalidraw` files into the main context for quick checks, comparisons, or "just to see what is there." Start with:
+Excalidraw scene JSON is verbose and low-signal. Do not read full `.excalidraw` files into the active context for quick checks, comparisons, or "just to see what is there." Start with the resolved bundled script path:
 
 ```bash
-python3 /path/to/skill/scripts/summarize_excalidraw.py diagram.excalidraw.json
+python3 "$SKILL_DIR/scripts/summarize_excalidraw.py" diagram.excalidraw.json
 ```
 
-Use the summary to identify labels, element counts, and basic arrow relationships. If the user explicitly asks for subagent delegation, delegate the heavy JSON inspection or modification and ask the subagent to return a text-only summary.
+Use the summary to identify labels, element counts, and basic arrow relationships. If the host supports delegation and the user requests it, delegate heavy JSON inspection or modification and ask for a text-only summary.
 
 ## Resources
 

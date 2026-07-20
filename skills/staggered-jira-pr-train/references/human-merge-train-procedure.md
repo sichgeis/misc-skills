@@ -81,7 +81,7 @@ git merge-base origin/<KEY>-<slug> origin/train/<KEY>/02-...
 git cherry -v origin/<KEY>-<slug> origin/train/<KEY>/02-...
 ```
 
-Repair by rebasing the next branch onto the updated handoff branch, then repeat upward for any descendants that still contain obsolete lower-layer commits. Push only agent-created train branches, and only with `--force-with-lease`.
+Repair by rebasing the next branch onto the updated handoff branch, then repeat upward for any descendants that still contain obsolete lower-layer commits. Push only train branches created during this workflow, and only with `--force-with-lease`.
 
 ## Final stack health gate
 

@@ -16,7 +16,7 @@ Keep two distinct phases:
 1. **Assessment and proposal:** inspect, validate, and recommend a precise scope without modifying the repository.
 2. **Approved autonomous implementation:** begin only after explicit approval, then establish a safe Git baseline, implement the accepted scope in verified stages, and commit and push each completed stage.
 
-Never blur the phases. Do not activate a Goal, edit files, install dependencies, create commits, or push during assessment.
+Never blur the phases. Do not create or activate host-level goals, edit files, install dependencies, create commits, or push during assessment.
 
 ## Calibrate the Upgrade
 
@@ -62,7 +62,7 @@ Approval does not authorize destructive actions, real-user-data changes, credent
 
 ## Preserve Trust
 
-- Read and obey every applicable repository instruction.
+- Discover, read, and obey every applicable repository instruction, including canonical operating documents and thin host-specific pointers such as `AGENTS.md`, `CLAUDE.md`, or their repository equivalents.
 - Never expose secrets found in files, configuration, logs, history, or environment variables.
 - Preserve pre-existing user work and call out conflicts rather than overwriting or hiding them.
 - Tie findings and changes to the real workflow and concrete repository evidence.

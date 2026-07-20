@@ -1,6 +1,6 @@
 # Agent Instructions
 
-Adapt this file to the repository. Remove every placeholder and section that does not prevent real ambiguity.
+Adapt this content to the repository's chosen canonical operating document, whether that file is `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, or an established equivalent. Remove every placeholder and section that does not prevent real ambiguity. Keep any additional host-specific entry files as thin pointers to the canonical document rather than copies of these rules.
 
 ## Mission
 
@@ -41,7 +41,7 @@ Repeat until acceptance passes or a material blocker appears:
 3. Update `FEATURES.md` with progress, evidence, decisions when needed, and exactly one next action.
 4. Review the diff and create a focused commit when authorized.
 
-Use repository files as durable memory across tasks. Do not require Codex Goals, scheduled tasks, recurring automations, or an external task system. Use them only when the user explicitly requests them and the work genuinely needs monitoring or scheduling.
+Use repository files as durable memory across tasks. Do not require host goals, scheduled tasks, recurring automations, or an external task system. Use them only when the user explicitly requests them and the work genuinely needs monitoring or scheduling.
 
 Stop for unapproved changes to product meaning, scope, privacy, permissions, cost, providers, dependencies, destructive data handling, external communication, deployment, release, the default branch, or tags. Do not ask again for actions already explicitly authorized.
 

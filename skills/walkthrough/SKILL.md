@@ -1,6 +1,6 @@
 ---
 name: walkthrough
-description: "Guide a reviewer through a GitHub PR, stacked or staggered PR, branch, Jira issue, user story, or feature change as a calm guided VS Code data-flow walkthrough with clickable file links."
+description: "Guide a reviewer through a GitHub PR, stacked or staggered PR, branch, Jira issue, user story, or feature change as a calm, host-aware data-flow walkthrough with precise code locations."
 ---
 
 # Walkthrough
@@ -25,7 +25,7 @@ If the prompt lacks a GitHub hint, PR link, branch, Jira ID, repo hint, or concr
 
 ## Investigation workflow
 
-Prefer connected GitHub and Jira tools when available. Use local repository inspection, `git`, and `gh` as fallback.
+Prefer connected GitHub and Jira capabilities when available. Use local repository inspection, `git`, and authenticated CLIs such as `gh` as fallbacks.
 
 For a GitHub PR:
 
@@ -49,16 +49,16 @@ The entry point can be a REST controller, message handler, CLI command, schedule
 
 ## Output rules
 
-Optimize for VS Code plugin use.
+Adapt navigation to the current host while keeping every code location precise.
 
-- Use clickable local file links whenever files exist locally.
-- Format local links as Markdown absolute-path links with line numbers: `[file.py](/absolute/path/file.py:42)`.
-- Prefer one primary link per navigation step, pointing to the best starting line.
-- Put the function, class, method, or symbol name next to the link.
-- Use GitHub links only when the file is not available locally.
+- Prefer host-native code references when the host can open files directly.
+- Otherwise use absolute paths with line numbers. Format them as Markdown links such as `[file.py](/absolute/path/file.py:42)` only when the host renders local links; plain `/absolute/path/file.py:42` is the fallback.
+- Prefer one primary code location per navigation step, pointing to the best starting line.
+- Put the function, class, method, or symbol name next to the location.
+- Use GitHub URLs when the file is not available locally or the host cannot expose local paths.
 - Keep language calm, compact, and concrete. Assume the user has had a long day.
 - Explain domain terms at the point where they first matter.
-- Write like a guided VS Code tour: tell the user what to open, what symbol or line to inspect, what the line means, and where to jump next.
+- Write like a guided editor tour: tell the user what to open, what symbol or line to inspect, what the line means, and where to jump next.
 - Prefer narrative sections over checklist cards. Do not use repeated `Responsibility`, `Look at`, or `Ask yourself` blocks unless the user explicitly asks for review questions.
 - Quote only tiny snippets that anchor the walkthrough. Explain their plain meaning immediately after the snippet.
 
@@ -67,7 +67,7 @@ Optimize for VS Code plugin use.
 Use this structure unless the user asks for a different format:
 
 ````markdown
-Yes. Let’s walk it like you are clicking through VS Code.
+Yes. Let’s walk it like you are navigating through the code.
 
 **Start Here**
 Open [file.ext](/absolute/path/file.ext:line).
@@ -132,7 +132,7 @@ Plain meaning:
 The one-sentence version: <complete data-flow summary from entry point to exit/completion point>.
 ````
 
-Keep the same spirit when the exact headings differ. The walkthrough should feel like a person guiding the user through files, not a form being filled in.
+Keep the same spirit when the exact headings or location format differ. The example uses Markdown links, but use host-native references or plain absolute `path:line` locations when local links are unavailable. The walkthrough should feel like a person guiding the user through files, not a form being filled in.
 
 Avoid front-loading separate `Problem`, `Feature In One Sentence`, `Data Involved`, `Entry Point`, `Exit Point`, and `Runtime Flow` sections unless the user asks for a structured report. Weave that information into `Start Here`, the narrative sections, and `Full Path In One Breath`.
 
@@ -140,7 +140,7 @@ Avoid front-loading separate `Problem`, `Feature In One Sentence`, `Data Involve
 
 Each tour section should usually include:
 
-- file path as a clickable local link when possible
+- a host-native code reference, local link, or absolute `path:line` location
 - function/class/method/symbol to open
 - a key line, branch, call, or tiny snippet to inspect
 - plain-language meaning of that code in the current use case

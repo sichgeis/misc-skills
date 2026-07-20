@@ -5,7 +5,7 @@ description: "Turn a Jira issue into a GitHub-native staggered PR train: split r
 
 # Staggered Jira PR Train
 
-Use this skill when the task starts from a Jira issue, ticket key, or ticket URL and the desired output is a human-reviewable GitHub PR train. The goal is to make coding-agent work easier for humans to review by separating mechanical refactors, behavior changes, tests, and docs into distinct PR layers.
+Use this skill when the task starts from a Jira issue, ticket key, or ticket URL and the desired output is a human-reviewable GitHub PR train. The goal is to make automated implementation work easier for humans to review by separating mechanical refactors, behavior changes, tests, and docs into distinct PR layers.
 
 ## Outcome
 
@@ -50,7 +50,7 @@ After the train is reviewed and merged bottom-up, the handoff branch contains th
 8. Use exact Jira issue key casing in branch names and PR titles.
 9. When the Jira issue is ambiguous, make the smallest reasonable implementation and document assumptions in the train summary.
 10. After changing, rebasing, amending, force-pushing, or merging any non-top train branch, immediately repair every descendant train branch before declaring the train ready or asking reviewers to continue. Follow [Maintaining rewritten stacks](#maintaining-rewritten-stacks).
-11. If the repository has an `AGENTS.md`, `CONTRIBUTING.md`, PR template, branch naming convention, or CI instructions, follow them unless they conflict with this skill's safety and reviewability rules. Repository branch naming rules win for the handoff branch.
+11. Follow the repository guidance exposed by the host or stored in files such as `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, PR templates, branch conventions, or CI docs unless it conflicts with this skill's safety and reviewability rules. Repository branch naming rules win for the handoff branch.
 
 ## Inputs to infer
 
@@ -65,7 +65,7 @@ Infer these from the prompt, current branch, Jira URL, Jira issue content, or re
 - required PR template fields
 - whether refactoring is required
 
-If the Jira issue content is not available through tools or local context, ask for the issue text or URL before implementing. If the key is available but the full issue is not, proceed only when the user supplied enough acceptance criteria.
+Prefer the host's available Jira capability and use capability discovery when supported. If the Jira issue content is not available through connected capabilities or local context, ask for the issue text or URL before implementing. If the key is available but the full issue is not, proceed only when the user supplied enough acceptance criteria.
 
 ## Step 1: understand the Jira issue
 
@@ -130,7 +130,7 @@ Rules:
 
 - Do not rewrite or force-push shared/user branches unless explicitly approved.
 - Do not mutate the original implementation branch while building the train; create train branches from default, handoff, or disposable work branches.
-- Force-push only agent-created train branches, and only when it improves stack clarity.
+- Force-push only train branches created during this workflow, and only when it improves stack clarity.
 - Preserve the final behavior and test coverage.
 - Document any reshaping in the train summary.
 - Each train branch must still compile/pass relevant checks where feasible.
@@ -323,7 +323,7 @@ Distinguish conflict types:
 - Normal code conflict: Git reports file conflicts during rebase. Resolve the files, continue the rebase, and rerun relevant tests.
 - Ancestry/stack conflict: GitHub shows conflicts or duplicate diffs because the handoff branch contains a lower layer as one commit SHA while an upper branch still descends from an older SHA for the same logical layer. Repair ancestry with `rebase --onto` before editing code.
 
-Force-push only agent-created train branches, and only with `--force-with-lease`.
+Force-push only train branches created during this workflow, and only with `--force-with-lease`.
 
 ## Final stack health gate
 

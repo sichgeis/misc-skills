@@ -1,11 +1,11 @@
 ---
 name: pr-babysit
-description: Create or prepare a GitHub pull request from a mostly finished feature branch, apply a pragmatic final review pass, set up a heartbeat/automation to monitor CI and review comments, handle relevant feedback, update the PR description, and stop babysitting when the PR is ready for human review. Use when the user asks to create a PR and babysit it, put a PR on a heartbeat, wait for CI/review bots such as hy-review-bot or Claude, or keep watching a PR after implementation is mostly complete.
+description: Create or prepare a GitHub pull request from a mostly finished feature branch, apply a pragmatic final review pass, choose an available durable scheduler, session cron, event monitor, one-shot wait, or manual fallback for CI and review comments, handle relevant feedback, update the PR description, and stop babysitting when the PR is ready for human review. Use when the user asks to create a PR and babysit it, put a PR on a heartbeat, wait for CI/review bots, or keep watching a PR after implementation is mostly complete.
 ---
 
 # PR Babysit
 
-Use this skill when a feature branch is mostly done and the user wants Codex to create or shepherd a GitHub PR until it is ready for human review.
+Use this skill when a feature branch is mostly done and the user wants the coding agent to create or shepherd a GitHub PR until it is ready for human review.
 
 The goal is not to endlessly perfect the branch. The goal is to make the PR clean, scoped, reviewed by automation, responsive to useful feedback, and then stop.
 
@@ -37,13 +37,21 @@ When starting from a local mostly finished branch:
    - scope and non-goals
    - review notes or risk areas
    - linked ticket or issue
-7. If the PR should be watched, set up the heartbeat after the PR URL exists.
+7. If the PR should be watched, choose and set up the appropriate available watch mode after the PR URL exists.
 
-## Heartbeat Setup
+## Watch Mode Selection
 
-Use the available automation tools instead of inventing raw scheduling text. If automation tools are not already loaded, search for `automation_update` with `tool_search` and use the discovered tool.
+Choose the strongest available capability that actually matches the requested lifetime. Do not call every mechanism a heartbeat, and do not imply persistence that the host does not provide.
 
-Use a heartbeat prompt tailored to the ticket, repository, PR URL, branch, and reviewer expectations. Keep the prompt explicit enough that a future Codex run can operate without the original conversation.
+1. **Durable scheduler:** use when the user wants watching to survive the current conversation or client session. Confirm that the scheduler is durable, record the created job ID, cadence, and cleanup method, and use the babysitting prompt below. If the host cannot prove durability, do not describe it as durable.
+2. **Session cron:** use for periodic checks while the current session remains alive. State any host limits, including session-only lifetime or automatic expiry, and keep the job ID so it can be deleted when ending.
+3. **Event monitor:** use for event-driven or continuous watching within the current session, such as streaming CI or PR events. Cover success and failure terminal states, filter noise, and stop the monitor when the PR reaches an end criterion.
+4. **One-shot wait:** use when only one pending check, review, or workflow completion needs to finish. Wait once and return; do not create recurring automation.
+5. **Manual fallback:** when none of the above exists, perform the current check, return the reusable babysitting prompt and exact manual command/checklist, and say that continued watching was not scheduled.
+
+Prefer an event monitor over polling when a suitable event stream exists. Prefer a one-shot wait over recurring work when one completion is all that remains. Never use an internal subagent as a persistence substitute.
+
+Use a babysitting prompt tailored to the ticket, repository, PR URL, branch, and reviewer expectations. For a durable scheduler or session cron, keep the prompt explicit enough that a future run can operate without the original conversation.
 
 Template:
 
@@ -54,14 +62,14 @@ Check GitHub PR <PR URL> for CI status and new review comments, especially <expe
 
 Use the gm-refactor lens when relevant: keep the main flow readable, extract only meaningful stable details, avoid broad rewrites, reduce surprising mutation, and verify with focused tests. Push justified fixes to the PR branch and report what changed, what is still pending, and any comments deliberately not applied.
 
-End criteria: If CI is green or only blocked by expected human-review requirements, and there is nothing significant left to improve, or if bot/reviewer comments begin flipflopping or asking for scope churn rather than clear correctness/readability improvements, stop making code changes. Before ending, update the GitHub PR description one final time with the final summary, verification, accepted review feedback, and deliberately deferred/non-applied comments. Make sure the PR is ready for human review, not draft unless intentionally still draft, on the correct branch, and cleanly pushed. Then delete this heartbeat automation and notify the user that babysitting has ended and why.
+End criteria: If CI is green or only blocked by expected human-review requirements, and there is nothing significant left to improve, or if bot/reviewer comments begin flipflopping or asking for scope churn rather than clear correctness/readability improvements, stop making code changes. Before ending, update the GitHub PR description one final time with the final summary, verification, accepted review feedback, and deliberately deferred/non-applied comments. Make sure the PR is ready for human review, not draft unless intentionally still draft, on the correct branch, and cleanly pushed. Then stop and delete the watch job or monitor if this run created one, and notify the user that babysitting has ended and why.
 ```
 
-Choose a cadence that matches the repo's CI/review timing. If unknown, use a 7-minute interval during active review.
+For recurring polling, choose a cadence that matches the repo's CI/review timing. If unknown, use about 7 minutes during active review. Do not impose a cadence on an event monitor or one-shot wait.
 
-## Heartbeat Run Workflow
+## Watch Run Workflow
 
-On each heartbeat run:
+On each recurring run or relevant monitor event:
 
 1. Read the PR state:
    - title, body, base/head branches, draft status
@@ -93,7 +101,7 @@ On each heartbeat run:
 
 ## Ending Babysitting
 
-End the heartbeat when one of these is true:
+End the active watch when one of these is true:
 
 - CI is green or only blocked by expected human approval/review requirements.
 - There are no significant unresolved review comments.
@@ -101,7 +109,7 @@ End the heartbeat when one of these is true:
 - Bot or reviewer feedback starts flipflopping, repeating, or asking for scope churn instead of clear improvements.
 - The user asks to stop.
 
-Before deleting the heartbeat:
+Before deleting or stopping a watch created by this run:
 
 1. Ensure the local and remote branch state is clean and pushed.
 2. Mark the PR ready for review if it should no longer be draft.
@@ -112,8 +120,8 @@ Before deleting the heartbeat:
    - deferred or non-applied comments with brief rationale
    - current status and remaining human-review needs
 4. Confirm processed review comments are answered, resolved, or marked handled.
-5. Delete the heartbeat automation using the automation tool that created or manages it.
-6. Notify the user that babysitting ended and why.
+5. Delete the scheduler or cron job, or stop the monitor, using the same capability that created it. If this was a one-shot wait or manual fallback, there may be nothing to delete.
+6. Notify the user that babysitting ended, why, and whether any session-lifetime limitation affected the watch.
 
 ## Useful GitHub Checks
 

@@ -18,7 +18,7 @@ Begin only after clear approval. Keep implementation within the accepted recomme
 
 Restate the accepted scope, success criteria, constraints, non-goals, and verification surface compactly.
 
-When Goals are available, create an active Goal for the accepted upgrade. Define:
+Create or update the repository tracker first; it is the authoritative completion contract for every host. Record:
 
 - the desired end state
 - evidence that proves completion
@@ -27,7 +27,7 @@ When Goals are available, create an active Goal for the accepted upgrade. Define
 - how to choose the next action after each stage
 - what constitutes a genuine blocker
 
-Do not set a token budget unless requested. Keep the Goal active until every accepted stage and the final evidence check pass. If Goals are unavailable, use the repository tracker and staged loop as the durable completion contract.
+If the host exposes a goal or objective capability, optionally mirror the accepted upgrade there for session guidance. Do not make a host goal the only copy of scope, progress, evidence, or next action, and do not let it override the repository tracker. Do not set a token budget unless requested. Keep any mirrored goal aligned until every accepted stage and final evidence check pass; when goals are unavailable, the workflow is unchanged because the repository tracker remains authoritative.
 
 ## Establish a Safe Git Baseline
 
@@ -37,7 +37,7 @@ Before changing implementation code:
 2. Inspect the branch, upstream, remotes, recent history, working-tree status, diffs, and untracked files.
 3. Preserve all existing work. Never discard, reset, overwrite, or hide user changes.
 4. Review pre-existing changes before including them anywhere. Never commit secrets, credentials, real user data, local databases, caches, build output, OS metadata, or unexpectedly large generated files. Pause when intent is genuinely unclear.
-5. Unless already on an appropriate dedicated branch, create one from the current state. Prefer `codex/project-upgrade`, adding a short unique suffix when needed. Do not perform a multi-stage upgrade on the default or protected branch.
+5. Unless already on an appropriate dedicated branch, create one from the current state. Follow the repository's branch convention; when none exists, use the neutral fallback `project-upgrade/<short-scope>`, adding a short unique suffix when needed. Do not perform a multi-stage upgrade on the default or protected branch.
 6. If the tree is dirty, commit only safe, intended pre-existing work as a clearly labeled pre-upgrade snapshot. If the tree is clean, record the current commit without creating an empty commit.
 7. Push the snapshot or clean baseline branch and establish its upstream.
 8. Confirm a clean working tree before implementation.
@@ -50,7 +50,7 @@ If no usable remote exists, authentication fails, or the baseline cannot be push
 
 ## Create the Upgrade Tracker
 
-Create a concise Markdown tracker inside the repository, following an established convention when one exists; otherwise use `docs/project-upgrade.md`.
+Use one concise repository-owned tracker as the authoritative state for the upgrade. Update an established current-work or upgrade tracker when it can own this scope without ambiguity; otherwise create `docs/project-upgrade.md`. Do not create a duplicate tracker merely because the host also has goals, tasks, or plans.
 
 Include:
 
@@ -151,7 +151,7 @@ After all stages appear complete:
 5. Confirm every stage commit is pushed and the working tree is clean.
 6. Update the tracker with final status, evidence, limitations, deferred work, and the next recommended human action.
 7. Commit and push the final tracker update when it is not already part of the last stage.
-8. Mark the Goal complete only when concrete evidence supports the accepted end state and no required work remains.
+8. Mark the repository tracker complete only when concrete evidence supports the accepted end state and no required work remains. Then complete any mirrored host goal if one was created.
 
 Return a final handoff containing:
 

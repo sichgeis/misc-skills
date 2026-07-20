@@ -14,9 +14,9 @@
 
 ## Purpose
 
-Optimize small personal projects for low-friction work by successive or concurrent Codex tasks. Prefer the easiest system that reliably preserves product meaning, active feature state, truthful validation, authority, and the next action.
+Optimize small personal projects for low-friction work by successive or concurrent coding-agent tasks. Prefer the easiest system that reliably preserves product meaning, active feature state, truthful validation, authority, and the next action.
 
-The default bootstrap is `AGENTS.md`, `FEATURES.md`, and `README.md`. These filenames are not the standard by themselves. An existing artifact system is equally valid when it provides the same capabilities clearly and proportionately.
+The default bootstrap is one canonical operating document, one current-work surface, and `README.md`. Common choices are `AGENTS.md` or `CLAUDE.md` for operating guidance and `FEATURES.md` for current work. These filenames are not the standard by themselves. An existing artifact system is equally valid when it provides the same capabilities clearly and proportionately. When several agent hosts require entry files, designate one canonical operating document and keep the others as thin pointers with only host-specific loading details.
 
 ## Capability Standard
 
@@ -35,7 +35,7 @@ Do not require every capability to have its own file. Separate an artifact only 
 
 ## Autonomous Work Model
 
-Use the repository as the durable coordination layer. Conversation state, a Codex Goal, or a scheduled task may disappear or be invisible to another task; accepted scope, progress, evidence, blockers, and the next action must remain discoverable in the repository.
+Use the repository as the durable coordination layer. Conversation state, a host goal, or a scheduled task may disappear or be invisible to another task; accepted scope, progress, evidence, blockers, and the next action must remain discoverable in the repository.
 
 After a feature is approved, use this loop:
 
@@ -48,9 +48,9 @@ After a feature is approved, use this loop:
 
 Stop for decisions outside the approval envelope, not for routine implementation choices. A blocker is material when it changes product meaning, accepted scope, privacy, permissions, cost, providers, dependencies, destructive data handling, external communication, release/deployment authority, or another explicit repository boundary.
 
-Do not make Codex Goals, scheduled tasks, recurring automations, or an external issue tracker prerequisites for autonomy. Introduce them only when the user explicitly requests them and the work benefits from time-based monitoring, recurring checks, or coordination that repository state alone cannot provide. A `Goal` field in `FEATURES.md` names the feature outcome; it does not require activation of a Codex Goal.
+Do not make host goals, scheduled tasks, recurring automations, or an external issue tracker prerequisites for autonomy. Introduce them only when the user explicitly requests them and the work benefits from time-based monitoring, recurring checks, or coordination that repository state alone cannot provide. A `Goal` field in `FEATURES.md` names the feature outcome; it does not require activation of a host goal.
 
-Sequential Codex tasks should normally continue on main, using the repository as their shared memory. When tasks actually run concurrently, isolate overlapping or risky work with separate branches and, only when simultaneous checkouts help, worktrees. Shared durable documents remain authoritative; every task must preserve unrelated changes and reconcile shared-file conflicts explicitly.
+Sequential coding-agent tasks should normally continue on main, using the repository as their shared memory. When tasks actually run concurrently, isolate overlapping or risky work with separate branches and, only when simultaneous checkouts help, worktrees. Shared durable documents remain authoritative; every task must preserve unrelated changes and reconcile shared-file conflicts explicitly.
 
 ## Operating Modes
 
@@ -61,10 +61,11 @@ Use when little usable guidance exists and important capabilities must be inferr
 Default recommendation:
 
 - create or improve a concise `README.md` for project purpose and entry points;
-- create an `AGENTS.md` operating procedure; and
-- create a compact `FEATURES.md` current-work surface.
+- create or choose one canonical operating procedure, using `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, or an established equivalent;
+- add thin host-specific pointers only when a host needs its own entry file; and
+- create a compact `FEATURES.md` current-work surface when no equivalent exists.
 
-Adapt to existing equivalents rather than creating duplicates. Do not add separate architecture, privacy, release, test-plan, ADR, archive, feature-directory, or run-tracker structures unless present risk demands them.
+Adapt to existing equivalents rather than creating duplicates. Do not maintain the same operating rules independently in `AGENTS.md`, `CLAUDE.md`, and other host files. Do not add separate architecture, privacy, release, test-plan, ADR, archive, feature-directory, or run-tracker structures unless present risk demands them.
 
 ### Consolidate
 
@@ -82,7 +83,7 @@ Map capabilities before recommending filenames:
 
 | Capability | Common artifacts | Evidence of quality |
 | --- | --- | --- |
-| Agent operating procedure | `AGENTS.md`, `CONTRIBUTING.md`, scoped instruction files | Names required reading, commands, boundaries, Git rules, approvals, and handoff behavior |
+| Agent operating procedure | `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, `.github/copilot-instructions.md`, scoped instruction files | Names required reading, commands, boundaries, Git rules, approvals, and handoff behavior; identifies one canonical owner when multiple host entry files exist |
 | Product intent and non-goals | README, product spec, design brief | Describes users, workflow, accepted scope, and constraints without conflicting with current behavior |
 | Active feature work | `FEATURES.md`, roadmap, issue tracker, feature spec, run document | Identifies status, accepted behavior, progress, validation, blocker, and next action at the needed depth |
 | Canonical validation | Taskfile, Makefile, package scripts, CI config, test guide | One discoverable command works in the real environment; manual gaps are stated honestly |
@@ -94,9 +95,9 @@ A filename earns no credit by existing. Check whether its content is current, sp
 
 ## Minimal Artifact Guidance
 
-### `AGENTS.md`
+### Canonical operating document (`AGENTS.md`, `CLAUDE.md`, or equivalent)
 
-Keep it short enough to read at the start of every task. Include only repository-wide operating knowledge:
+Choose one canonical owner for repository-wide operating guidance. Keep it short enough to read at the start of every task. Include only repository-wide operating knowledge:
 
 - mission and important boundaries;
 - required sources of truth and conflict precedence;
@@ -108,7 +109,7 @@ Keep it short enough to read at the start of every task. Include only repository
 - autonomy and approval boundaries; and
 - progress, completion, and handoff expectations.
 
-Do not duplicate detailed product behavior, architecture, release procedures, or feature state. Link to the artifact that owns each responsibility.
+Do not duplicate detailed product behavior, architecture, release procedures, or feature state. Link to the artifact that owns each responsibility. If `CLAUDE.md`, `AGENTS.md`, or another host entry file is not canonical, keep it to a short pointer such as “Read `<canonical path>` before work” plus only host-specific syntax that cannot live in the canonical document.
 
 ### `FEATURES.md`
 

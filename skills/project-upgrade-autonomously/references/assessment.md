@@ -11,11 +11,11 @@
 
 ## Assessment Boundary
 
-Keep this phase read-only. Do not modify files, install or upgrade dependencies, activate a Goal, create commits, or push.
+Keep this phase read-only. Do not modify files, install or upgrade dependencies, create or activate a host-level goal, create commits, or push.
 
 You may:
 
-- read relevant repository files and applicable instructions such as `AGENTS.md`
+- discover and read relevant repository files and applicable instructions such as `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, or repository-specific equivalents
 - inspect the working tree, branch, remotes, history, and existing diffs
 - inspect documentation, manifests, configuration, entry points, tests, scripts, packaging, and dependencies
 - trace important code paths and data flows
@@ -140,6 +140,6 @@ Return the report in this order:
 
 ## Stop at the Approval Gate
 
-After presenting the report, stop and wait. Do not modify the repository or activate a Goal.
+After presenting the report, stop and wait. Do not modify the repository or create or activate a host-level goal.
 
 Treat clear approval according to `SKILL.md`. If feedback does not clearly authorize implementation, revise the proposal and request approval again.

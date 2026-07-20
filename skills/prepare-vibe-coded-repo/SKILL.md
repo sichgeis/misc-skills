@@ -1,13 +1,13 @@
 ---
 name: prepare-vibe-coded-repo
-description: Assess and prepare a small personal or vibe-coded software repository for low-friction autonomous Codex development. Use when the user wants to bootstrap, simplify, or standardize repository guidance; improve AGENTS.md, README, feature tracking, validation, Git, approval, progress, or handoff conventions; make sequential or concurrent Codex work understandable; or check whether an existing lightweight process should be preserved. Inspect and propose changes read-only first, then align repository guidance only after approval, defaulting to direct main-branch work for small sequential projects and using branches or worktrees only when isolation is justified. Do not use this skill for automatic product or code modernization.
+description: Assess and prepare a small personal or vibe-coded software repository for low-friction autonomous coding-agent development. Use when the user wants to bootstrap, simplify, or standardize repository guidance; improve CLAUDE.md, AGENTS.md, CONTRIBUTING.md, README, feature tracking, validation, Git, approval, progress, or handoff conventions; make sequential or concurrent agent work understandable; or check whether an existing lightweight process should be preserved. Inspect and propose changes read-only first, then align repository guidance only after approval, defaulting to direct main-branch work for small sequential projects and using branches or worktrees only when isolation is justified. Do not use this skill for automatic product or code modernization.
 ---
 
 # Prepare Vibe-Coded Repository
 
-Establish the smallest guidance system that lets Codex understand product boundaries, select and continue feature work, run honest validation, operate within an explicit approval envelope, and leave a recoverable handoff.
+Establish the smallest guidance system that lets coding agents understand product boundaries, select and continue feature work, run honest validation, operate within an explicit approval envelope, and leave a recoverable handoff.
 
-Prefer `AGENTS.md`, `FEATURES.md`, and `README.md` when bootstrapping a small under-documented repository. Treat them as capability defaults, not mandatory filenames or a universal end state. Preserve or simplify specialized documentation when it already provides those capabilities.
+Prefer one canonical operating document, one current-work surface, and a user/developer README when bootstrapping a small under-documented repository. The canonical operating document may be `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, or an established repository equivalent. When multiple hosts need entry files, keep one canonical document and make the others thin pointers rather than duplicated rule sets. `FEATURES.md` and `README.md` remain useful defaults, not mandatory filenames or a universal end state. Preserve or simplify specialized documentation when it already provides the needed capabilities.
 
 ## Operating Contract
 
@@ -24,15 +24,15 @@ Before assessing or aligning, read [references/minimal-vibe-project-standard.md]
 
 Use repository state as durable memory. After a feature is approved, direct agents to repeat a bounded loop: implement the next coherent increment, validate it, update feature progress and evidence, create a focused commit when authorized, and continue until acceptance passes or a material blocker appears. Ask only when a decision falls outside the approved envelope.
 
-Do not require Codex Goals, scheduled tasks, recurring automations, or an external task system. Use those orchestration features only when the user explicitly requests them and the work genuinely needs monitoring or scheduling. Treat separate Codex tasks as workers that coordinate through the repository's current-work artifact; add branches or worktrees only when tasks actually run concurrently or otherwise need isolation.
+Do not require host goals, scheduled tasks, recurring automations, or an external task system. Use those orchestration features only when the user explicitly requests them and the work genuinely needs monitoring or scheduling. Treat separate agent tasks as workers that coordinate through the repository's current-work artifact; add branches or worktrees only when tasks actually run concurrently or otherwise need isolation.
 
 ## Assess Read-Only
 
-1. Read every applicable repository instruction.
+1. Discover and read every applicable repository instruction. Check common host and repository entry points such as `CLAUDE.md`, `AGENTS.md`, `CONTRIBUTING.md`, `.github/copilot-instructions.md`, scoped instruction files, and links from those files. Follow pointers to their canonical source instead of treating each entry file as independent truth.
 2. Record the repository root, current branch and commit, default branch when discoverable, remotes, and complete working-tree state. Treat every pre-existing change as user work.
-3. Read the README, build/test/task configuration, and likely instruction, product, specification, planning, status, architecture, privacy, test, release, and deployment files.
+3. Read the README, build/test/task configuration, and likely instruction, product, specification, planning, status, architecture, privacy, test, release, and deployment files. Identify whether operating rules are canonical in one document, intentionally scoped, or duplicated across host-specific files.
 4. Map artifacts to capabilities rather than checking filenames:
-   - agent operating procedure and approval envelope;
+   - one canonical agent operating procedure and approval envelope, plus thin host pointers where needed;
    - bounded autonomous loop and durable repository state;
    - product intent, boundaries, and non-goals;
    - current feature status, ownership, progress, and next action;
@@ -76,7 +76,7 @@ Approval authorizes the proposed local commit even when main is the named target
 2. Stop and ask for direction if the baseline changed materially, proposed files now overlap pre-existing changes, or the approved Git mode cannot preserve unrelated work safely.
 3. For a small sequential project, stay on main and commit there unless the repository or user requires another workflow. Use a branch for parallel, broad, risky, experimental, or easily reviewable isolated work. Use a worktree only when simultaneous checkouts provide a concrete benefit. Do not create either as ceremony.
 4. Implement only approved actions. Merge useful existing content into the selected artifacts. Preserve specialized documents with unique responsibilities.
-5. When bootstrapping, adapt [assets/AGENTS.md](assets/AGENTS.md) and [assets/FEATURES.md](assets/FEATURES.md) to the repository. Remove unused placeholders and sections.
+5. When bootstrapping, adapt [assets/AGENTS.md](assets/AGENTS.md) as content for the chosen canonical operating document, regardless of its final filename, and adapt [assets/FEATURES.md](assets/FEATURES.md) for the chosen current-work surface. Remove unused placeholders and sections. If another host entry file is required, make it a short pointer to the canonical operating document and include only genuinely host-specific loading syntax.
 6. Run only approved, non-external validation. Never claim an unavailable or unrun command passed.
 7. Review the diff for lost meaning, accidental product-code changes, unrelated files, stale cross-references, and secrets.
 8. Stage only the approved paths and create one local commit using the repository convention or `docs: prepare repository for agent work`.

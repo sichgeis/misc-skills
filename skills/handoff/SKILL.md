@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: Compact the current conversation into a handoff document for another agent to pick up. Use when the user asks to hand off, summarize, checkpoint, compact, or prepare context for a fresh Codex session or another agent.
+description: Compact the current conversation into a handoff document for another agent or session to pick up. Use when the user asks to hand off, summarize, checkpoint, compact, or prepare context for a fresh session or another agent.
 ---
 
 # Handoff
@@ -13,7 +13,7 @@ Save the handoff document in the user's OS temporary directory, not the current 
 
 - Prefer `${TMPDIR}` when it is set.
 - Otherwise use `/tmp` on Unix-like systems.
-- Use a descriptive filename such as `codex-handoff-YYYYMMDD-HHMMSS.md`.
+- Use a descriptive vendor-neutral filename such as `agent-handoff-YYYYMMDD-HHMMSS.md`.
 
 Tell the user the full path after writing the file.
 

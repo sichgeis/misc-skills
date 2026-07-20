@@ -1,4 +1,4 @@
 interface:
   display_name: "Collect Resources"
-  short_description: "Build a new-thread resource ingestion prompt"
-  default_prompt: "Use $collect-resources to collect the most relevant resources and start a new Codex thread that reads and prepares for the task ahead."
+  short_description: "Build a new-conversation resource prompt"
+  default_prompt: "Use $collect-resources to collect the most relevant resources and, when supported, start a new user-visible conversation that reads and prepares for the task ahead."

@@ -1,6 +1,6 @@
 ---
 name: pr-babysit
-description: Create or prepare a GitHub pull request from a mostly finished feature branch, apply a pragmatic final review pass, choose an available durable scheduler, session cron, event monitor, one-shot wait, or manual fallback for CI and review comments, handle relevant feedback, update the PR description, and stop babysitting when the PR is ready for human review. Use when the user asks to create a PR and babysit it, put a PR on a heartbeat, wait for CI/review bots, or keep watching a PR after implementation is mostly complete.
+description: Create or prepare a GitHub pull request from a mostly finished feature branch, apply a pragmatic final review pass, choose an available durable scheduler, session cron, event monitor, one-shot wait, or manual fallback for CI and review comments, handle relevant feedback, safely clean settled bot chatter, and return a copy-ready human-review handoff. Use when the user asks to create a PR and babysit it, put a PR on a heartbeat, wait for CI/review bots, or keep watching a PR after implementation is mostly complete.
 ---
 
 # PR Babysit
@@ -31,12 +31,13 @@ When starting from a local mostly finished branch:
    - apply a small readability pass only when it improves the current feature
 4. Confirm the branch is clean except for intentional changes, commit them, and push.
 5. Create a draft PR by default unless the user asked for a ready PR or repo conventions say otherwise.
-6. Write a PR body with:
+6. Write a useful working PR body with:
    - summary
    - verification performed
    - scope and non-goals
    - review notes or risk areas
    - linked ticket or issue
+   This working body may retain operational detail during review. Replace it with the concise human-facing description in [Human-Review Finalization](#human-review-finalization) only after the successful readiness gate passes.
 7. If the PR should be watched, choose and set up the appropriate available watch mode after the PR URL exists.
 
 ## Watch Mode Selection
@@ -62,7 +63,7 @@ Check GitHub PR <PR URL> for CI status and new review comments, especially <expe
 
 Use the gm-refactor lens when relevant: keep the main flow readable, extract only meaningful stable details, avoid broad rewrites, reduce surprising mutation, and verify with focused tests. Push justified fixes to the PR branch and report what changed, what is still pending, and any comments deliberately not applied.
 
-End criteria: If CI is green or only blocked by expected human-review requirements, and there is nothing significant left to improve, or if bot/reviewer comments begin flipflopping or asking for scope churn rather than clear correctness/readability improvements, stop making code changes. Before ending, update the GitHub PR description one final time with the final summary, verification, accepted review feedback, and deliberately deferred/non-applied comments. Make sure the PR is ready for human review, not draft unless intentionally still draft, on the correct branch, and cleanly pushed. Then stop and delete the watch job or monitor if this run created one, and notify the user that babysitting has ended and why.
+Successful end criteria: Begin human-review finalization only when the local and remote branch are clean and pushed; required checks are green; significant feedback is answered, resolved, or deliberately deferred; the PR is open and non-draft; GitHub reports no merge conflict; and every non-human merge requirement is satisfied. Expected human approval may remain. Then save a concise human-facing PR description that preserves the Jira/issue link, inventory and safely clean only settled bot/agent chatter when authorized, re-verify readiness, stop or delete the watch created by this run, and return the exact final description, PR URL, and a copy-ready Slack review request. Never alter human-authored feedback. If the readiness gate does not pass, keep watching or report the blocker without performing final conversation cleanup.
 ```
 
 For recurring polling, choose a cadence that matches the repo's CI/review timing. If unknown, use about 7 minutes during active review. Do not impose a cadence on an event monitor or one-shot wait.
@@ -99,29 +100,89 @@ On each recurring run or relevant monitor event:
    - comments applied or deliberately deferred
    - current blocking condition
 
-## Ending Babysitting
+## Human-Review Finalization
 
-End the active watch when one of these is true:
+Run this phase only for a successful handoff. If the user asks to stop early, feedback begins oscillating, or a material blocker remains, stop making changes and report the state without cleaning the PR conversation.
 
-- CI is green or only blocked by expected human approval/review requirements.
-- There are no significant unresolved review comments.
-- Remaining comments are deliberate non-goals for this small slice.
-- Bot or reviewer feedback starts flipflopping, repeating, or asking for scope churn instead of clear improvements.
-- The user asks to stop.
+### 1. Confirm The Readiness Gate
 
-Before deleting or stopping a watch created by this run:
+Require all of the following:
 
-1. Ensure the local and remote branch state is clean and pushed.
-2. Mark the PR ready for review if it should no longer be draft.
-3. Update the PR description one final time with:
-   - final summary
-   - verification
-   - accepted feedback
-   - deferred or non-applied comments with brief rationale
-   - current status and remaining human-review needs
-4. Confirm processed review comments are answered, resolved, or marked handled.
-5. Delete the scheduler or cron job, or stop the monitor, using the same capability that created it. If this was a one-shot wait or manual fallback, there may be nothing to delete.
-6. Notify the user that babysitting ended, why, and whether any session-lifetime limitation affected the watch.
+- The local and remote branch are clean, synchronized, and pushed.
+- Required CI and checks are green.
+- All significant feedback is answered, resolved, or deliberately deferred with durable context.
+- The PR is open and non-draft.
+- GitHub reports no merge conflict.
+- Every non-human merge requirement is satisfied; expected human approval may remain.
+
+Do not infer mergeability from green CI alone. Check GitHub's merge state, review decision, and required checks directly.
+
+### 2. Finalize The PR Description
+
+Before cleaning conversation history, save a concise human-facing description. Follow a mandatory repository PR template when it requires additional sections; otherwise use:
+
+```markdown
+## Summary
+
+- <short change>
+- <short change>
+
+## Why
+
+<one short plain-language explanation>
+
+Jira: [<TICKET>](https://jira.example.com/browse/<TICKET>)
+```
+
+Keep `Summary` to a few bullets and `Why` to one short paragraph. Always preserve the original Jira or issue reference when one exists; omit the `Jira` line only when none exists. Remove babysitting-only material such as verification transcripts, feedback-disposition logs, bot discussion summaries, scope/non-goal bookkeeping, and review notes unless repository policy or a material human-review risk genuinely requires it.
+
+### 3. Clean Settled Bot Conversation
+
+Perform conversation cleanup only after the final description durably captures the human-facing context. Before deleting or minimizing content, confirm that the user explicitly requested cleanup or approved a babysitting plan that named it. Without that authorization, preserve the content, resolve settled threads when already authorized by the review workflow, and report the limitation.
+
+1. Inventory top-level PR conversation comments, submitted review summaries, inline review comments, and review threads.
+2. Classify every item by author and state. Distinguish automation, bots, and agents from human colleagues; when identity is uncertain, treat the author as human.
+3. Never delete, hide, minimize, dismiss, or rewrite human-authored feedback.
+4. Never remove an unresolved risk, requested change, decision, or follow-up unless it is captured in the final PR body or linked ticket.
+5. For clearly settled automation content:
+   - delete redundant top-level bot comments and agent disposition replies when authorized and safe;
+   - resolve inline bot threads and leave them collapsed;
+   - minimize settled bot-authored submitted review summaries or review comments as `RESOLVED` when GitHub supports it;
+   - never dismiss a submitted review merely to reduce noise because dismissal creates additional timeline activity.
+6. If deletion or minimization is unavailable, leave the item resolved or collapsed and record the limitation without failing the run.
+
+Submitted review records are immutable. Prefer purpose-built GitHub capabilities; use REST deletion or GitHub GraphQL minimization only for capability gaps, after verifying the exact node, author, type, and settled state.
+
+### 4. Re-verify And Stop The Watch
+
+After cleanup, verify that:
+
+- no human-authored feedback was removed or altered;
+- no significant unresolved thread remains;
+- the PR is still open, non-draft, pushed, green, and conflict-free; and
+- the concise description and original Jira/issue reference remain intact.
+
+Do not add a GitHub comment reporting cleanup. Record only aggregate counts for the final user response, such as comments deleted, threads resolved, items minimized, items preserved, and limitations.
+
+Only after re-verification, delete the scheduler or cron job or stop the monitor using the capability that created it. A one-shot wait or manual fallback may have nothing to remove.
+
+### 5. Return The Copy-Ready Handoff
+
+Keep the final response short. Include:
+
+- confirmation that babysitting ended and why;
+- the exact final PR description in chat;
+- the PR URL;
+- aggregate cleanup results and material limitations in one short line; and
+- this copy-ready Slack request:
+
+```text
+Please review <PR title>: <PR URL>
+
+<one-sentence Why or concise PR description>
+```
+
+Do not reproduce removed bot transcripts or add a long verification report.
 
 ## Useful GitHub Checks
 
@@ -139,9 +200,11 @@ gh run view <RUN-ID> --log-failed
 
 For unresolved review-thread state, use the GitHub tools or GraphQL when flat comments are not enough.
 
+For authorized final cleanup, use purpose-built GitHub operations when available. Use `gh api` only for gaps such as deleting a verified bot-authored issue comment through REST or minimizing a verified bot-authored review summary/comment through GraphQL with classifier `RESOLVED`. Do not use review dismissal as cleanup.
+
 ## Response Style
 
-Keep status reports short and operational:
+During an active watch, keep status reports short and operational. After successful finalization, use the copy-ready handoff defined above instead.
 
 ```text
 Checked <PR>. CI: <state>. Reviews: <state>.

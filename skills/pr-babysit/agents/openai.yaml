@@ -1,4 +1,4 @@
 interface:
   display_name: "PR Babysit"
-  short_description: "Create and watch GitHub PRs through review"
-  default_prompt: "Use $pr-babysit to create a PR for the current branch, choose the appropriate available watch mode, and handle CI or review feedback until it is ready for human review."
+  short_description: "Watch and clean PRs for human review"
+  default_prompt: "Use $pr-babysit to create and watch a PR, safely clean settled bot chatter after it is ready, and return a copy-ready human-review handoff."

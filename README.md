@@ -84,6 +84,7 @@ new or updated skills when it requires a restart to reload skill manifests.
 ```bash
 task list            # list skills in this repo
 task validate        # validate each skill folder
+task test            # run repository tests
 task install         # install all skills into Codex
 task install:claude  # install all skills into Claude Code
 task install:all     # install all skills into both hosts

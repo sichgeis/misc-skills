@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Discover and search Christian's local Git project catalog."""
+"""Discover and search the local Git project catalog."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from typing import Any
 
 try:
     import tomllib
-except ImportError:  # pragma: no cover - Codex currently ships modern Python.
+except ImportError:  # pragma: no cover - supported hosts normally ship modern Python.
     tomllib = None
 
 
@@ -53,9 +53,58 @@ README_NAMES = (
     "README",
 )
 
+STATE_HOME_ENV = "LOCAL_PROJECTS_HOME"
+STATE_DIR_NAME = "local-projects"
+CATALOG_NAME = "local-projects.json"
 
-def codex_home() -> Path:
-    return Path(os.environ.get("CODEX_HOME", Path.home() / ".codex")).expanduser()
+
+def state_home(
+    environ: dict[str, str] | None = None,
+    home: Path | None = None,
+) -> Path:
+    env = os.environ if environ is None else environ
+    if env.get(STATE_HOME_ENV):
+        return Path(env[STATE_HOME_ENV]).expanduser()
+    if env.get("XDG_STATE_HOME"):
+        return Path(env["XDG_STATE_HOME"]).expanduser() / STATE_DIR_NAME
+    base_home = Path.home() if home is None else home
+    return base_home / ".local" / "state" / STATE_DIR_NAME
+
+
+def legacy_codex_home(
+    environ: dict[str, str] | None = None,
+    home: Path | None = None,
+) -> Path:
+    env = os.environ if environ is None else environ
+    base_home = Path.home() if home is None else home
+    return Path(env.get("CODEX_HOME", base_home / ".codex")).expanduser()
+
+
+def default_catalog_path(
+    environ: dict[str, str] | None = None,
+    home: Path | None = None,
+) -> Path:
+    return state_home(environ=environ, home=home) / CATALOG_NAME
+
+
+def legacy_catalog_path(
+    environ: dict[str, str] | None = None,
+    home: Path | None = None,
+) -> Path:
+    return legacy_codex_home(environ=environ, home=home) / CATALOG_NAME
+
+
+def catalog_for_read(
+    primary: Path,
+    *,
+    allow_legacy: bool,
+    environ: dict[str, str] | None = None,
+    home: Path | None = None,
+) -> Path:
+    if primary.exists() or not allow_legacy:
+        return primary
+    legacy = legacy_catalog_path(environ=environ, home=home)
+    return legacy if legacy.exists() else primary
 
 
 def run_git(repo: Path, *args: str) -> str:
@@ -340,7 +389,6 @@ def display(project: dict[str, Any]) -> None:
 
 
 def main() -> int:
-    default_json = codex_home() / "local-projects.json"
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--root",
@@ -349,11 +397,20 @@ def main() -> int:
         metavar="CATEGORY=PATH",
         help="Project root; repeat for multiple categories",
     )
-    parser.add_argument("--json", type=Path, default=default_json)
+    parser.add_argument(
+        "--json",
+        type=Path,
+        default=None,
+        help=(
+            f"JSON catalog path; defaults to ${STATE_HOME_ENV}/local-projects.json "
+            "or the platform-neutral user state directory"
+        ),
+    )
     parser.add_argument(
         "--markdown",
         type=Path,
-        default=default_json.with_suffix(".md"),
+        default=None,
+        help="Markdown catalog path; defaults beside the JSON catalog",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
     subparsers.add_parser("refresh", help="Scan roots and regenerate the catalog")
@@ -367,18 +424,24 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    explicit_json = args.json is not None
+    json_path = args.json or default_catalog_path()
+    markdown_path = args.markdown or json_path.with_suffix(".md")
+    allow_legacy = not explicit_json and not os.environ.get(STATE_HOME_ENV)
+    read_path = catalog_for_read(json_path, allow_legacy=allow_legacy)
+
     roots = parse_roots(args.root)
     if args.command == "refresh":
         projects = discover(roots)
-        write_catalog(projects, roots, args.json, args.markdown)
-        print(f"Cataloged {len(projects)} projects in {args.json}")
+        write_catalog(projects, roots, json_path, markdown_path)
+        print(f"Cataloged {len(projects)} projects in {json_path}")
         return 0
 
-    if args.command == "find" and (args.refresh or not args.json.exists()):
+    if args.command == "find" and (args.refresh or not read_path.exists()):
         projects = discover(roots)
-        write_catalog(projects, roots, args.json, args.markdown)
+        write_catalog(projects, roots, json_path, markdown_path)
     else:
-        projects = load_projects(args.json)
+        projects = load_projects(read_path)
 
     if args.command == "list":
         for project in projects:

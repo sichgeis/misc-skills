@@ -1,6 +1,8 @@
 # Misc Skills
 
-Personal Codex skills that are too small or specific for a larger shared plugin.
+Personal coding-agent skills that are too small or specific for a larger shared
+plugin. The repository currently supports local installation for Codex and
+Claude Code.
 
 ## Layout
 
@@ -14,7 +16,7 @@ skills/
     scripts/          # optional deterministic helpers
 ```
 
-Each skill lives in `skills/<skill-name>/` and follows the Codex skill format.
+Each skill lives in `skills/<skill-name>/` and follows the shared skill format.
 
 ## Find Local Project
 
@@ -58,19 +60,32 @@ preserving equivalent or specialized documentation that already works well.
 
 ## Install
 
-Install all skills into the local Codex skills directory:
+Install all skills into Codex (the backward-compatible default):
 
 ```bash
 task install
 ```
 
-When `CODEX_HOME` is unset, skills are installed into `~/.codex/skills`.
-Restart Codex after installing new or updated skills.
+Install into a specific host, or both supported hosts:
+
+```bash
+task install:codex
+task install:claude
+task install:all
+```
+
+Codex defaults to `${CODEX_HOME:-~/.codex}/skills`; Claude Code defaults to
+`~/.claude/skills`. Override those destinations with `CODEX_SKILLS_DIR` and
+`CLAUDE_SKILLS_DIR`, respectively. Restart the relevant host after installing
+new or updated skills when it requires a restart to reload skill manifests.
 
 ## Useful Tasks
 
 ```bash
-task list      # list skills in this repo
-task validate  # validate each skill folder
-task install   # install all skills locally
+task list            # list skills in this repo
+task validate        # validate each skill folder
+task install         # install all skills into Codex
+task install:claude  # install all skills into Claude Code
+task install:all     # install all skills into both hosts
+task verify:install  # verify both install paths in temporary directories
 ```

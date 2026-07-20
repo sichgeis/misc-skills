@@ -2,7 +2,9 @@ version: "3"
 
 vars:
   CODEX_SKILLS_DIR:
-    sh: 'printf "%s" "${CODEX_HOME:-$HOME/.codex}/skills"'
+    sh: 'printf "%s" "${CODEX_SKILLS_DIR:-${CODEX_HOME:-$HOME/.codex}/skills}"'
+  CLAUDE_SKILLS_DIR:
+    sh: 'printf "%s" "${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"'
 
 tasks:
   default:
@@ -19,6 +21,7 @@ tasks:
     cmds:
       - |
         ruby -ryaml -e '
+          names = {}
           Dir.glob("skills/*").select { |path| File.directory?(path) }.sort.each do |skill|
             skill_md = File.join(skill, "SKILL.md")
             abort("#{skill}: SKILL.md not found") unless File.exist?(skill_md)
@@ -27,29 +30,125 @@ tasks:
             match = content.match(/\A---\n(.*?)\n---/m)
             abort("#{skill}: invalid SKILL.md frontmatter") unless match
 
-            frontmatter = YAML.load(match[1])
+            frontmatter = YAML.safe_load(match[1], permitted_classes: [], aliases: false)
             abort("#{skill}: frontmatter must be a map") unless frontmatter.is_a?(Hash)
-            abort("#{skill}: missing name") unless frontmatter["name"].is_a?(String)
-            abort("#{skill}: missing description") unless frontmatter["description"].is_a?(String)
-            abort("#{skill}: invalid name") unless frontmatter["name"].match?(/\A[a-z0-9]+(?:-[a-z0-9]+)*\z/)
-            abort("#{skill}: description is too long") if frontmatter["description"].length > 1024
+
+            name = frontmatter["name"]
+            description = frontmatter["description"]
+            abort("#{skill}: missing name") unless name.is_a?(String) && !name.strip.empty?
+            abort("#{skill}: missing description") unless description.is_a?(String) && !description.strip.empty?
+            abort("#{skill}: invalid name") unless name.match?(/\A[a-z0-9]+(?:-[a-z0-9]+)*\z/)
+            abort("#{skill}: directory and name differ") unless File.basename(skill) == name
+            abort("#{skill}: duplicate name #{name}") if names.key?(name)
+            abort("#{skill}: description is too long") if description.length > 1024
+            names[name] = skill
 
             agents_yaml = File.join(skill, "agents", "openai.yaml")
-            YAML.load_file(agents_yaml) if File.exist?(agents_yaml)
+            if File.exist?(agents_yaml)
+              adapter = YAML.safe_load(File.read(agents_yaml), permitted_classes: [], aliases: false)
+              abort("#{agents_yaml}: adapter must be a map") unless adapter.is_a?(Hash)
+              abort("#{agents_yaml}: missing interface map") unless adapter["interface"].is_a?(Hash)
+            end
+
+            Dir.glob(File.join(skill, "**", "*.md")).sort.each do |markdown|
+              File.read(markdown).scan(/\[[^\]]*\]\(([^)]+)\)/).flatten.each do |target|
+                path = target.split("#", 2).first
+                next if path.nil? || path.empty?
+                next if path.match?(/\A(?:https?:|mailto:|obsidian:|\/)/)
+                resolved = File.expand_path(path, File.dirname(markdown))
+                abort("#{markdown}: missing linked file #{target}") unless File.exist?(resolved)
+              end
+            end
 
             puts "#{skill}: Skill is valid!"
           end
         '
+      - find skills -type f -name '*.py' -exec python3 -c 'import ast, pathlib, sys; ast.parse(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"), filename=sys.argv[1])' {} \;
+      - find skills -type f -name '*.sh' -exec bash -n {} \;
 
-  install:
-    desc: Install all repo skills into the local Codex skills directory
+  _install:
+    internal: true
+    requires:
+      vars: [SKILLS_DIR, HOST]
     cmds:
-      - mkdir -p "{{.CODEX_SKILLS_DIR}}"
+      - mkdir -p "{{.SKILLS_DIR}}"
       - |
         for skill in skills/*; do
           [ -d "$skill" ] || continue
           name="$(basename "$skill")"
-          rm -rf "{{.CODEX_SKILLS_DIR}}/$name"
-          cp -R "$skill" "{{.CODEX_SKILLS_DIR}}/$name"
-          echo "Installed $name -> {{.CODEX_SKILLS_DIR}}/$name"
+          destination="{{.SKILLS_DIR}}/$name"
+          rm -rf "$destination"
+          cp -R "$skill" "$destination"
+          diff -qr "$skill" "$destination" >/dev/null
+          echo "Installed $name for {{.HOST}} -> $destination"
         done
+
+  install:
+    desc: Install all repo skills into the local Codex skills directory
+    cmds:
+      - task: install:codex
+
+  install:codex:
+    desc: Install all repo skills into the local Codex skills directory
+    deps: [validate]
+    cmds:
+      - task: _install
+        vars:
+          HOST: Codex
+          SKILLS_DIR: "{{.CODEX_SKILLS_DIR}}"
+
+  install:claude:
+    desc: Install all repo skills into the local Claude Code skills directory
+    deps: [validate]
+    cmds:
+      - task: _install
+        vars:
+          HOST: Claude Code
+          SKILLS_DIR: "{{.CLAUDE_SKILLS_DIR}}"
+
+  install:all:
+    desc: Install all repo skills into Codex and Claude Code
+    cmds:
+      - task: install:codex
+      - task: install:claude
+
+  verify:install:
+    desc: Verify Codex and Claude installs in temporary directories
+    cmds:
+      - |
+        set -eu
+        temp_root="$(mktemp -d)"
+        trap 'rm -rf "$temp_root"' EXIT
+
+        verify_tree() {
+          destination="$1"
+          for skill in skills/*; do
+            [ -d "$skill" ] || continue
+            name="$(basename "$skill")"
+            test -d "$destination/$name"
+            diff -qr "$skill" "$destination/$name" >/dev/null
+          done
+        }
+
+        codex_dir="$temp_root/codex-skills"
+        claude_dir="$temp_root/claude-skills"
+        mkdir -p "$codex_dir/gm-refactor" "$codex_dir/unrelated-skill"
+        printf 'stale\n' > "$codex_dir/gm-refactor/stale.txt"
+        printf 'keep\n' > "$codex_dir/unrelated-skill/sentinel.txt"
+
+        CODEX_SKILLS_DIR="$codex_dir" task install
+        verify_tree "$codex_dir"
+        test ! -e "$codex_dir/gm-refactor/stale.txt"
+        test -f "$codex_dir/unrelated-skill/sentinel.txt"
+        test ! -e "$claude_dir/ddd-interviewer"
+
+        CLAUDE_SKILLS_DIR="$claude_dir" task install:claude
+        verify_tree "$claude_dir"
+
+        all_codex_dir="$temp_root/all-codex-skills"
+        all_claude_dir="$temp_root/all-claude-skills"
+        CODEX_SKILLS_DIR="$all_codex_dir" CLAUDE_SKILLS_DIR="$all_claude_dir" task install:all
+        verify_tree "$all_codex_dir"
+        verify_tree "$all_claude_dir"
+
+        echo "Temporary Codex and Claude Code installs verified."

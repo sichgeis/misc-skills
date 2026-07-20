@@ -16,7 +16,7 @@
 
 Optimize small personal projects for low-friction work by successive or concurrent coding-agent tasks. Prefer the easiest system that reliably preserves product meaning, active feature state, truthful validation, authority, and the next action.
 
-The default bootstrap is one canonical operating document, one current-work surface, and `README.md`. Common choices are `AGENTS.md` or `CLAUDE.md` for operating guidance and `FEATURES.md` for current work. These filenames are not the standard by themselves. An existing artifact system is equally valid when it provides the same capabilities clearly and proportionately. When several agent hosts require entry files, designate one canonical operating document and keep the others as thin pointers with only host-specific loading details.
+The default bootstrap is one canonical operating document, one current-work surface, and `README.md`. Common choices are `AGENTS.md` or `CLAUDE.md` for operating guidance and `FEATURES.md` for current work. These filenames are not the standard by themselves. An existing artifact system is equally valid when it provides the same capabilities clearly and proportionately. Preserve each target host's automatically discovered entry file—`AGENTS.md` for Codex and `CLAUDE.md` for Claude Code. Designate one canonical operating document and keep any other required entry files as thin pointers with only host-specific loading details.
 
 ## Capability Standard
 
@@ -62,7 +62,7 @@ Default recommendation:
 
 - create or improve a concise `README.md` for project purpose and entry points;
 - create or choose one canonical operating procedure, using `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, or an established equivalent;
-- add thin host-specific pointers only when a host needs its own entry file; and
+- ensure each target host has its automatically discovered entry file (`AGENTS.md` for Codex and `CLAUDE.md` for Claude Code), using a thin pointer when that file is not canonical; and
 - create a compact `FEATURES.md` current-work surface when no equivalent exists.
 
 Adapt to existing equivalents rather than creating duplicates. Do not maintain the same operating rules independently in `AGENTS.md`, `CLAUDE.md`, and other host files. Do not add separate architecture, privacy, release, test-plan, ADR, archive, feature-directory, or run-tracker structures unless present risk demands them.
@@ -109,7 +109,7 @@ Choose one canonical owner for repository-wide operating guidance. Keep it short
 - autonomy and approval boundaries; and
 - progress, completion, and handoff expectations.
 
-Do not duplicate detailed product behavior, architecture, release procedures, or feature state. Link to the artifact that owns each responsibility. If `CLAUDE.md`, `AGENTS.md`, or another host entry file is not canonical, keep it to a short pointer such as “Read `<canonical path>` before work” plus only host-specific syntax that cannot live in the canonical document.
+Do not duplicate detailed product behavior, architecture, release procedures, or feature state. Link to the artifact that owns each responsibility. Preserve `AGENTS.md` whenever Codex is a target and `CLAUDE.md` whenever Claude Code is a target. If either host entry file or another required entry file is not canonical, keep it to a short pointer such as “Read `<canonical path>` before work” plus only host-specific syntax that cannot live in the canonical document.
 
 ### `FEATURES.md`
 

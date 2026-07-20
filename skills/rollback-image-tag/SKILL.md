@@ -46,8 +46,10 @@ git fetch origin master
 If the worktree is dirty, do not overwrite user changes. Either continue only if the changes are unrelated or ask how to proceed. Once the worktree is safe, create a branch from the latest `origin/master`:
 
 ```bash
-git switch -c "rollback/revert-<env-or-scope>-${BAD_TAG}" origin/master
+git switch -c "<host-or-repo-prefix>/revert-<env-or-scope>-${BAD_TAG}" origin/master
 ```
+
+Follow the repository's branch convention first, then the host convention. When neither defines one, use `codex/revert-...` in Codex and `rollback/revert-...` in other hosts.
 
 Read the applicable repository guidance using the host's file-reading capability. Check the instruction files and contribution docs that exist in the repository rather than assuming a single filename.
 
@@ -168,8 +170,10 @@ aws-us-east-production-01/  -> [prod-us-01]
 Use a branch name like:
 
 ```text
-rollback/revert-<env>-<scope>-${BAD_TAG}
+<host-or-repo-prefix>/revert-<env>-<scope>-${BAD_TAG}
 ```
+
+Resolve `<host-or-repo-prefix>` using the repository convention first and host convention second; use `codex` for Codex when neither supplies a prefix.
 
 Use a commit and PR title like:
 

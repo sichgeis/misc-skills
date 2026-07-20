@@ -1,6 +1,6 @@
 # Agent Instructions
 
-Adapt this content to the repository's chosen canonical operating document, whether that file is `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, or an established equivalent. Remove every placeholder and section that does not prevent real ambiguity. Keep any additional host-specific entry files as thin pointers to the canonical document rather than copies of these rules.
+Adapt this content to the repository's chosen canonical operating document, whether that file is `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, or an established equivalent. Remove every placeholder and section that does not prevent real ambiguity. Preserve the automatically discovered entry file for each target host—`AGENTS.md` for Codex and `CLAUDE.md` for Claude Code—and keep it as a thin pointer when it is not the canonical document.
 
 ## Mission
 

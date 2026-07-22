@@ -1,6 +1,6 @@
 ---
 name: pr-babysit
-description: Create or prepare a GitHub pull request from a mostly finished feature branch, apply a pragmatic final review pass, choose an available durable scheduler, session cron, event monitor, one-shot wait, or manual fallback for CI and review comments, handle relevant feedback, safely clean settled bot chatter, and return a copy-ready human-review handoff. Use when the user asks to create a PR and babysit it, put a PR on a heartbeat, wait for CI/review bots, or keep watching a PR after implementation is mostly complete.
+description: Create or prepare a GitHub pull request from a mostly finished feature branch, apply a pragmatic final review pass, choose an available durable scheduler, session cron, event monitor, one-shot wait, or manual fallback for CI and bot review comments, handle automated feedback, safely clean settled bot chatter, and return a copy-ready human-review handoff. Use when the user asks to create a PR and babysit it, put a PR on a heartbeat, wait for CI/review bots, or keep watching a PR after implementation is mostly complete.
 ---
 
 # PR Babysit
@@ -13,7 +13,8 @@ The goal is not to endlessly perfect the branch. The goal is to make the PR clea
 
 - Keep the feature's original scope intact. Treat the PR as a small reviewable slice, not a chance to grow the epic.
 - If the user invokes or references `$gm-refactor`, use that lens explicitly: preserve readable endpoint/service flow, extract only meaningful stable details, avoid broad rewrites, and verify with focused tests.
-- Treat bot and reviewer comments as suggestions. Apply comments that improve correctness, readability, maintainability, tests, or an explicit API/contract. Push back politely on comments that over-scope the slice, add unnecessary indirection, or conflict with the intended design. Always answer, resolve, or otherwise mark handled any review comment you process.
+- Process only clearly identified bot feedback, especially from Claude Code, GitHub Copilot, and `hy-review-bot`. Apply useful suggestions and concisely answer, resolve, or mark handled each bot comment you process.
+- Never answer, resolve, edit for, or otherwise handle human-authored feedback. Report it to the user and leave it untouched. Continue handling bot feedback, but do not finalize the PR while any human-authored comment or review question awaits the user. When identity is uncertain, treat the author as human.
 - Fix only failures relevant to this PR branch. Do not chase unrelated flaky infrastructure or failures already present on the base branch unless the user asks.
 - Prefer rebasing the PR branch onto the latest base branch over merging the base branch into the PR branch, unless the user explicitly requests a merge or rebasing would be unsafe for a shared branch.
 - Do not merge the PR unless the user explicitly asks and the repo's merge conditions are satisfied.
@@ -54,16 +55,20 @@ Prefer an event monitor over polling when a suitable event stream exists. Prefer
 
 Use a babysitting prompt tailored to the ticket, repository, PR URL, branch, and reviewer expectations. For a durable scheduler or session cron, keep the prompt explicit enough that a future run can operate without the original conversation.
 
+When the user explicitly requests PR babysitting, carry that request into every newly generated watch prompt as authorization for only the post-readiness cleanup in [Human-Review Finalization](#human-review-finalization). Do not infer cleanup authorization for an existing watch whose prompt does not state it; preserve the conversation unless the user separately authorizes cleanup.
+
 Template:
 
 ```text
 Babysit <TICKET-KEY or short PR name> PR
 
-Check GitHub PR <PR URL> for CI status and new review comments, especially <expected bots/reviewers>. If checks are failing, inspect the failing logs and fix only issues relevant to this PR branch. If review comments exist, treat them as suggestions: apply them when they improve correctness, readability, tests, maintainability, or the explicit API/contract for this slice; push back politely when they would over-scope <ticket/epic slice>, introduce unnecessary indirection, or conflict with repository conventions. For every processed review comment, either answer it, resolve it, or mark it handled in the appropriate GitHub thread. Keep replies very concise and readable; use a small table when it makes several comment outcomes easier to scan.
+Check GitHub PR <PR URL> for CI status and new review comments. Process only comments clearly authored by review bots, especially Claude Code, GitHub Copilot, and `hy-review-bot`. Apply bot suggestions when they improve correctness, readability, tests, maintainability, or the explicit API/contract for this slice; push back concisely when they would over-scope <ticket/epic slice>, introduce unnecessary indirection, or conflict with repository conventions. Answer, resolve, or mark handled every bot comment you process.
+
+Never answer, resolve, or implement feedback from a human author. Report human feedback to the user and leave it untouched; when author identity is uncertain, treat it as human. Continue processing bot feedback and CI, but do not finalize the PR while any human-authored comment or review question awaits the user.
 
 Use the gm-refactor lens when relevant: keep the main flow readable, extract only meaningful stable details, avoid broad rewrites, reduce surprising mutation, and verify with focused tests. Push justified fixes to the PR branch and report what changed, what is still pending, and any comments deliberately not applied.
 
-Successful end criteria: Begin human-review finalization only when the local and remote branch are clean and pushed; required checks are green; significant feedback is answered, resolved, or deliberately deferred; the PR is open and non-draft; GitHub reports no merge conflict; and every non-human merge requirement is satisfied. Expected human approval may remain. Then save a concise human-facing PR description that preserves the Jira/issue link, inventory and safely clean only settled bot/agent chatter when authorized, re-verify readiness, stop or delete the watch created by this run, and return the exact final description, PR URL, and a copy-ready Slack review request. Never alter human-authored feedback. If the readiness gate does not pass, keep watching or report the blocker without performing final conversation cleanup.
+Successful end criteria: Begin human-review finalization only when the local and remote branch are clean and pushed; required checks are green; significant bot feedback is answered, resolved, or deliberately deferred; no human-authored comment or review question awaits the user; the PR is open and non-draft; GitHub reports no merge conflict; and every non-human merge requirement is satisfied. Expected human approval without unanswered feedback may remain. The user's explicit babysitting request authorizes this watch, only after that readiness gate passes and the concise human-facing PR description is saved, to delete settled top-level bot/agent comments, resolve settled automated inline threads, and minimize settled automated reviews and inline comments as `RESOLVED` where GitHub supports it. Preserve every human-authored item, re-verify readiness after cleanup, stop or delete the watch created by this run, and return the exact final description, PR URL, and a copy-ready Slack review request. If the readiness gate does not pass, keep watching or report the blocker without performing final conversation cleanup.
 ```
 
 For recurring polling, choose a cadence that matches the repo's CI/review timing. If unknown, use about 7 minutes during active review. Do not impose a cadence on an event monitor or one-shot wait.
@@ -83,17 +88,24 @@ On each recurring run or relevant monitor event:
    - implement the smallest relevant fix
    - run focused local validation when possible
    - commit and push the fix
-3. If review comments exist:
+3. Classify every review comment by author before acting. Treat uncertain identities as human.
+4. If bot review comments exist:
+   - focus on Claude Code, GitHub Copilot, `hy-review-bot`, and other clearly identified automation
    - group comments by theme
    - apply high-signal correctness/readability/test/API-contract feedback
    - answer, resolve, or mark handled every processed comment or thread
    - leave or draft a concise reply for comments that are out of scope, duplicative, or not worth the added complexity
    - keep replies easy to read; use short bullets or a small table when summarizing multiple comment outcomes
    - avoid fighting style-only comments unless they create meaningful churn
-4. If the branch is stale:
+5. If human-authored feedback exists:
+   - do not answer, resolve, or implement it
+   - report it promptly to the user
+   - continue handling CI and bot feedback
+   - treat any human comment or review question awaiting the user as a finalization blocker
+6. If the branch is stale:
    - prefer rebase onto the latest base branch
    - ask before rebasing if the branch appears shared, protected, or has non-agent commits that make rewriting unsafe
-5. Update the user with:
+7. Update the user with:
    - what was checked
    - what changed, if anything
    - validation run
@@ -110,10 +122,11 @@ Require all of the following:
 
 - The local and remote branch are clean, synchronized, and pushed.
 - Required CI and checks are green.
-- All significant feedback is answered, resolved, or deliberately deferred with durable context.
+- All significant bot feedback is answered, resolved, or deliberately deferred with durable context.
+- No human-authored comment or review question awaits the user.
 - The PR is open and non-draft.
 - GitHub reports no merge conflict.
-- Every non-human merge requirement is satisfied; expected human approval may remain.
+- Every non-human merge requirement is satisfied; expected human approval without unanswered feedback may remain.
 
 Do not infer mergeability from green CI alone. Check GitHub's merge state, review decision, and required checks directly.
 

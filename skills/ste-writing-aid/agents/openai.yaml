@@ -1,0 +1,4 @@
+interface:
+  display_name: "STE Writing Aid"
+  short_description: "Write clear technical prose in an STE-flavored style"
+  default_prompt: "Use $ste-writing-aid to rewrite this technical text in a clear STE-flavored style without changing its meaning."

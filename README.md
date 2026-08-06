@@ -58,6 +58,19 @@ useful setup for autonomous vibe-coded development.
 The default bootstrap uses `AGENTS.md`, `FEATURES.md`, and `README.md`, while
 preserving equivalent or specialized documentation that already works well.
 
+## STE Writing Aid
+
+`ste-writing-aid` drafts and rewrites engineering prose with STE-flavored
+sentence and structure discipline while preserving technical meaning and domain
+vocabulary.
+
+Invoke it with a prompt such as:
+
+```text
+Use $ste-writing-aid to rewrite this Jira story for clarity without changing
+its requirements.
+```
+
 ## Install
 
 Install all skills into Codex (the backward-compatible default):
